@@ -243,7 +243,7 @@ Inicia los servicios:
 start ./start_services.cmd # Windows
 ```
 
-Luego ejecuta: `python3 cli.py` 
+Luego ejecuta: `uv run cli.py` 
 
 ## Uso
 

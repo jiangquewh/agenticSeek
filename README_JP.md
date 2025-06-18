@@ -238,7 +238,7 @@ CLIで実行する場合はホストにパッケージをインストールし�
 start ./start_services.cmd # Windows
 ```
 
-その後 `python3 cli.py` を実行
+その後 `uv run cli.py` を実行
 
 ---
 
