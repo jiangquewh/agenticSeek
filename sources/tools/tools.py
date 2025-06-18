@@ -41,13 +41,13 @@ class Tools():
         self.config = configparser.ConfigParser()
         self.work_dir = self.create_work_dir()
         self.excutable_blocks_found = False
-        self.safe_mode = True
+        self.safe_mode = False
         self.allow_language_exec_bash = False
     
     def get_work_dir(self):
         return self.work_dir
     
-    def set_allow_language_exec_bash(value: bool) -> None:
+    def set_allow_language_exec_bash(self, value: bool) -> None:
         self.allow_language_exec_bash = value 
 
     def safe_get_work_dir_path(self):
