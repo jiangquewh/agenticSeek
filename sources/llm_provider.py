@@ -338,7 +338,14 @@ class Provider:
         """
         Use local lm-studio server to generate text.
         """
-        url = self.internal_url if self.in_docker else self.server_ip
+        if self.in_docker:
+            # Extract port from server_address if present
+            port = "1234"  # default
+            if ":" in self.server_address:
+                port = self.server_address.split(":")[1]
+            url = f"{self.internal_url}:{port}"
+        else:
+            url = f"http://{self.server_ip}"
         route_start = f"{url}/v1/chat/completions"
         payload = {
             "messages": history,
