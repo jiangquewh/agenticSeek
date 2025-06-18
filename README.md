@@ -282,7 +282,7 @@ Start services:
 start ./start_services.cmd # Window
 ```
 
-Use the CLI: `python3 cli.py`
+Use the CLI: `uv run cli.py`
 
 
 ---

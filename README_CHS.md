@@ -243,7 +243,7 @@ start ./start_services.cmd full # Windows
 start ./start_services.cmd # Windows
 ```
 
-然后运行：`python3 cli.py`
+然后运行：`uv run cli.py`
 
 ---
 
