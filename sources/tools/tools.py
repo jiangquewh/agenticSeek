@@ -152,7 +152,7 @@ class Tools():
         self.excutable_blocks_found = False
         return tmp
 
-    def load_exec_block(self, llm_text: str) -> tuple[list[str], str | None]:
+    def load_exec_block(self, llm_text: str):
         """
         Extract code/query blocks from LLM-generated text and process them for execution.
         This method parses the text looking for code blocks marked with the tool's tag (e.g. ```python).
