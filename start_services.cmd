@@ -7,19 +7,31 @@ if "%1"=="full" (
     echo !msg!
 )
 
-
-where openssl >nul 2>&1
+@echo off
+openssl rand -hex 32 >nul 2>&1
 if %ERRORLEVEL% == 0 (
     for /f %%i in ('openssl rand -hex 32') do set SEARXNG_SECRET_KEY=%%i
-) else (
-    where python >nul 2>&1
-    if %ERRORLEVEL% == 0 (
-        for /f %%i in ('python -c "import secrets; print(secrets.token_hex(32))"') do set SEARXNG_SECRET_KEY=%%i
-    ) else (
-        echo Error: Neither openssl nor python is available to generate a secret key.
-        exit /b 2
-    )
+    goto :key_generated
 )
+
+python --version >nul 2>&1
+if %ERRORLEVEL% == 0 (
+    for /f %%i in ('python -c "import secrets; print(secrets.token_hex(32))"') do set SEARXNG_SECRET_KEY=%%i
+    goto :key_generated
+)
+
+py --version >nul 2>&1
+if %ERRORLEVEL% == 0 (
+    for /f %%i in ('py -c "import secrets; print(secrets.token_hex(32))"') do set SEARXNG_SECRET_KEY=%%i
+    goto :key_generated
+)
+
+echo Error: Neither openssl nor python is available to generate a secret key.
+echo Please install Python from https://python.org or OpenSSL
+exit /b 2
+
+:key_generated
+echo Secret key generated successfully
 
 REM Generate secret key
 for /f %%i in ('powershell -command "[System.Web.Security.Membership]::GeneratePassword(64,0)"') do set SEARXNG_SECRET_KEY=%%i
