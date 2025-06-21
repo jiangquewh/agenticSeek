@@ -7,7 +7,7 @@ if %errorlevel% neq 0 (
     echo Error: uv is not installed. Please install uv first.
     echo You can install it using: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
     pause
-    exit /b 1
+    exit /b 2
 )
 
 REM Initialize uv project if pyproject.toml doesn't exist
