@@ -7,9 +7,13 @@ import json
 from typing import List, Tuple, Type, Dict
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import configparser
 
 from sources.utility import timer_decorator, pretty_print, animate_thinking
 from sources.logger import Logger
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 class Memory():
     """
@@ -162,7 +166,10 @@ class Memory():
         if self.memory[curr_idx-1]['content'] == content:
             pretty_print("Warning: same message have been pushed twice to memory", color="error")
         time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.memory.append({'role': role, 'content': content, 'time': time_str, 'model_used': self.model_provider})
+        if config["MAIN"]["provider_name"] == "openrouter":
+            self.memory.append({'role': role, 'content': content})
+        else:
+            self.memory.append({'role': role, 'content': content, 'time': time_str, 'model_used': self.model_provider})
         return curr_idx-1
     
     def clear(self) -> None:
