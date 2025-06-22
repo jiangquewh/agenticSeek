@@ -27,6 +27,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def is_running_in_docker():
+    """Detect if code is running inside a Docker container."""
+    # Method 1: Check for .dockerenv file
+    if os.path.exists('/.dockerenv'):
+        return True
+    
+    # Method 2: Check cgroup
+    try:
+        with open('/proc/1/cgroup', 'r') as f:
+            return 'docker' in f.read()
+    except:
+        pass
+    
+    return False
+
+
 from celery import Celery
 
 api = FastAPI(title="AgenticSeek API", version="0.1.0")
@@ -52,7 +68,25 @@ def initialize_system():
     stealth_mode = config.getboolean('BROWSER', 'stealth_mode')
     personality_folder = "jarvis" if config.getboolean('MAIN', 'jarvis_personality') else "base"
     languages = config["MAIN"]["languages"].split(' ')
-
+    
+    # Force headless mode in Docker containers
+    headless = config.getboolean('BROWSER', 'headless_browser')
+    if is_running_in_docker() and not headless:
+        # Print prominent warning to console (visible in docker-compose output)
+        print("\n" + "*" * 70)
+        print("*** WARNING: Detected Docker environment - forcing headless_browser=True ***")
+        print("*** INFO: To see the browser, run 'python cli.py' on your host machine ***")
+        print("*" * 70 + "\n")
+        
+        # Flush to ensure it's displayed immediately
+        sys.stdout.flush()
+        
+        # Also log to file
+        logger.warning("Detected Docker environment - forcing headless_browser=True")
+        logger.info("To see the browser, run 'python cli.py' on your host machine instead")
+        
+        headless = True
+    
     provider = Provider(
         provider_name=config["MAIN"]["provider_name"],
         model=config["MAIN"]["provider_model"],
@@ -62,7 +96,7 @@ def initialize_system():
     logger.info(f"Provider initialized: {provider.provider_name} ({provider.model})")
 
     browser = Browser(
-        create_driver(headless=config.getboolean('BROWSER', 'headless_browser'), stealth_mode=stealth_mode, lang=languages[0]),
+        create_driver(headless=headless, stealth_mode=stealth_mode, lang=languages[0]),
         anticaptcha_manual_install=stealth_mode
     )
     logger.info("Browser initialized")
@@ -251,6 +285,12 @@ async def process_query(request: QueryRequest):
             interaction.save_session()
 
 if __name__ == "__main__":
+    # Print startup info
+    if is_running_in_docker():
+        print("[AgenticSeek] Starting in Docker container...")
+    else:
+        print("[AgenticSeek] Starting on host machine...")
+    
     envport = os.getenv("BACKEND_PORT")
     if envport:
         port = int(envport)

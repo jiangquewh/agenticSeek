@@ -121,6 +121,11 @@ def create_undetected_chromedriver(service, chrome_options) -> webdriver.Chrome:
 
 def create_driver(headless=False, stealth_mode=True, crx_path="./crx/nopecha.crx", lang="en") -> webdriver.Chrome:
     """Create a Chrome WebDriver with specified options."""
+    # Warn if trying to run non-headless in Docker
+    if not headless and os.path.exists('/.dockerenv'):
+        print("[WARNING] Running non-headless browser in Docker may fail!")
+        print("[WARNING] Consider setting headless=True or headless_browser=True in config.ini")
+    
     chrome_options = Options()
     chrome_path = get_chrome_path()
     
