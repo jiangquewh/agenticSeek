@@ -491,21 +491,87 @@ If you encounter issues, this section provides guidance.
 
 **Error Example:** `SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version XXX`
 
-*   **Cause:** Your installed ChromeDriver version is incompatible with your Google Chrome browser version.
-*   **Solution:**
-    1.  **Check Chrome Version:** Open Google Chrome, go to `Settings > About Chrome` to find your version (e.g., "Version 120.0.6099.110").
-    2.  **Download Matching ChromeDriver:**
-        *   For Chrome versions 115 and newer: Go to the [Chrome for Testing (CfT) JSON Endpoints](https://googlechromelabs.github.io/chrome-for-testing/). Find the "stable" channel and download the ChromeDriver for your OS that matches your Chrome's major version.
-        *   For older versions (less common): You might find them on the [ChromeDriver - WebDriver for Chrome](https://chromedriver.chromium.org/downloads) page.
-        *   The image below shows an example from the CfT page:
-            ![Download Chromedriver specific version from Chrome for Testing page](./media/chromedriver_readme.png)
-    3.  **Install ChromeDriver:**
-        *   Ensure the downloaded `chromedriver` (or `chromedriver.exe` on Windows) is placed in a directory listed in your system's PATH environment variable (e.g., `/usr/local/bin` on Linux/macOS, or a custom scripts folder added to PATH on Windows).
-        *   Alternatively, place it in the root directory of the `agenticSeek` project.
-        *   Make sure the driver is executable (e.g., `chmod +x chromedriver` on Linux/macOS).
-    4.  Refer to the [ChromeDriver Installation](#chromedriver-installation) section in the main Installation guide for more details.
+### Root Cause
+ChromeDriver version incompatibility occurs when:
+1. Your installed ChromeDriver version doesn't match your Chrome browser version
+2. In Docker environments, `undetected_chromedriver` may download its own ChromeDriver version, bypassing the mounted binary
 
-If this section is incomplete or you encounter other ChromeDriver issues, please consider searching existing [GitHub Issues](https://github.com/Fosowl/agenticSeek/issues) or raising a new one.
+### Solution Steps
+
+#### 1. Check Your Chrome Version
+Open Google Chrome → `Settings > About Chrome` to find your version (e.g., "Version 134.0.6998.88")
+
+#### 2. Download Matching ChromeDriver
+
+**For Chrome 115 and newer:** Use the [Chrome for Testing API](https://googlechromelabs.github.io/chrome-for-testing/)
+- Visit the Chrome for Testing availability dashboard
+- Find your Chrome version or the closest available match
+- Download the ChromeDriver for your OS (Linux64 for Docker environments)
+
+**For older Chrome versions:** Use the [legacy ChromeDriver downloads](https://chromedriver.chromium.org/downloads)
+
+![Download ChromeDriver from Chrome for Testing](./media/chromedriver_readme.png)
+
+#### 3. Install ChromeDriver (Choose One Method)
+
+**Method A: Project Root Directory (Recommended for Docker)**
+```bash
+# Place the downloaded chromedriver binary in your project root
+cp path/to/downloaded/chromedriver ./chromedriver
+chmod +x ./chromedriver  # Make executable on Linux/macOS
+```
+
+**Method B: System PATH**
+```bash
+# Linux/macOS
+sudo mv chromedriver /usr/local/bin/
+sudo chmod +x /usr/local/bin/chromedriver
+
+# Windows: Place chromedriver.exe in a folder that's in your PATH
+```
+
+#### 4. Verify Installation
+```bash
+# Test the ChromeDriver version
+./chromedriver --version
+# OR if in PATH:
+chromedriver --version
+```
+
+### Docker-Specific Notes
+
+⚠️ **Important for Docker Users:**
+- The Docker volume mount approach may not work with stealth mode (`undetected_chromedriver`)
+- **Solution**: Place ChromeDriver in the project root directory as `./chromedriver`
+- The application will automatically detect and use this binary
+- You should see: `"Using ChromeDriver from project root: ./chromedriver"` in the logs
+
+### Troubleshooting Tips
+
+1. **Still getting version mismatch?**
+   - Verify the ChromeDriver is executable: `ls -la ./chromedriver`
+   - Check the ChromeDriver version: `./chromedriver --version`
+   - Ensure it matches your Chrome browser version
+
+2. **Docker container issues?**
+   - Check backend logs: `docker logs backend`
+   - Look for the message: `"Using ChromeDriver from project root"`
+   - If not found, verify the file exists and is executable
+
+3. **Chrome for Testing versions**
+   - Use the exact version match when possible
+   - For version 134.0.6998.88, use ChromeDriver 134.0.6998.165 (closest available)
+   - Major version numbers must match (134 = 134)
+
+### Version Compatibility Matrix
+
+| Chrome Version | ChromeDriver Version | Status |
+|----------------|---------------------|---------|
+| 134.0.6998.x   | 134.0.6998.165     | ✅ Works |
+| 133.0.6943.x   | 133.0.6943.141     | ✅ Works |
+| 132.0.6834.x   | 132.0.6834.159     | ✅ Works |
+
+*For the latest compatibility, check the [Chrome for Testing dashboard](https://googlechromelabs.github.io/chrome-for-testing/)*
 
 `Exception: Failed to initialize browser: Message: session not created: This version of ChromeDriver only supports Chrome version 113
 Current browser version is 134.0.6998.89 with binary path`
