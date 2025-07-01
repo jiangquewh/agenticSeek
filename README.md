@@ -257,7 +257,7 @@ Start required services. This will start all services from the docker-compose.ym
 
 ```sh
 ./start_services.sh full # MacOS
-start ./start_services.cmd full # Window
+start start_services.cmd full # Window
 ```
 
 **Warning:** This step will download and load all Docker images, which may take up to 30 minutes. After starting the services, please wait until the backend service is fully running (you should see **backend: "GET /health HTTP/1.1" 200 OK** in the log) before sending any messages. The backend services might take 5 minute to start on first run.
@@ -279,7 +279,7 @@ Start services:
 
 ```sh
 ./start_services.sh # MacOS
-start ./start_services.cmd # Window
+start start_services.cmd # Window
 ```
 
 Use the CLI: `uv run cli.py`

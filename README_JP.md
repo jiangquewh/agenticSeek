@@ -215,7 +215,7 @@ geminiではコーディングやbashが失敗する場合があります。deep
 
 ```sh
 ./start_services.sh full # MacOS
-start ./start_services.cmd full # Windows
+start start_services.cmd full # Windows
 ```
 
 **注意:** このステップで全Dockerイメージがダウンロード・展開されるため最大30分かかる場合があります。backendサービスが完全に起動するまで（ログにbackend: <info>が表示されるまで）待ってください。
@@ -235,7 +235,7 @@ CLIで実行する場合はホストにパッケージをインストールし�
 
 ```sh
 ./start_services.sh # MacOS
-start ./start_services.cmd # Windows
+start start_services.cmd # Windows
 ```
 
 その後 `uv run cli.py` を実行

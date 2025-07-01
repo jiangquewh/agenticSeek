@@ -220,7 +220,7 @@ provider_server_address = 127.0.0.1:5000 # 无关紧要
 
 ```sh
 ./start_services.sh full # MacOS
-start ./start_services.cmd full # Windows
+start start_services.cmd full # Windows
 ```
 
 **警告：** 此步骤会下载并加载所有 Docker 镜像，可能需 30 分钟。启动后请等待 backend 服务完全运行（日志中出现 backend: <info>），再发送消息。backend 启动比其他服务慢。
@@ -240,7 +240,7 @@ start ./start_services.cmd full # Windows
 
 ```sh
 ./start_services.sh # MacOS
-start ./start_services.cmd # Windows
+start start_services.cmd # Windows
 ```
 
 然后运行：`uv run cli.py`
