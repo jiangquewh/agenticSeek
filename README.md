@@ -598,9 +598,6 @@ See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom t
 
  > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time 
 
- > [steveh8758](https://github.com/steveh8758) | Taipei Time 
-
-
 ## Special Thanks:
 
  > [tcsenpai](https://github.com/tcsenpai) and [plitc](https://github.com/plitc) For helping with backend dockerization
