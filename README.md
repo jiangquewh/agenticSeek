@@ -257,7 +257,7 @@ Start required services. This will start all services from the docker-compose.ym
 
 ```sh
 ./start_services.sh full # MacOS
-start ./start_services.cmd full # Window
+start start_services.cmd full # Window
 ```
 
 **Warning:** This step will download and load all Docker images, which may take up to 30 minutes. After starting the services, please wait until the backend service is fully running (you should see **backend: "GET /health HTTP/1.1" 200 OK** in the log) before sending any messages. The backend services might take 5 minute to start on first run.
@@ -279,7 +279,7 @@ Start services:
 
 ```sh
 ./start_services.sh # MacOS
-start ./start_services.cmd # Window
+start start_services.cmd # Window
 ```
 
 Use the CLI: `uv run cli.py`
@@ -645,7 +645,18 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 [Contribution guide](./docs/CONTRIBUTING.md)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Fosowl/agenticSeek&type=Date)](https://www.star-history.com/#Fosowl/agenticSeek&Date)
+
+## Sponsors:
+
+Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpAPI to unlock more Jarvis-like capabilities. With SerpAPI, you can turbocharge your agent for specialized tasks while staying in full control.
+
+<a href="https://serpapi.com/"><img src="./media/banners/sponsor_banner_serpapi.png" height="350" alt="SerpApi Banner" ></a>
+
+See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom tools!
+
+### **Patron sponsor**:
+
+- [tatra-labs](https://github.com/tatra-labs)
 
 ## Maintainers:
 
@@ -653,14 +664,8 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
  > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time 
 
- > [steveh8758](https://github.com/steveh8758) | Taipei Time 
-
 ## Special Thanks:
 
  > [tcsenpai](https://github.com/tcsenpai) and [plitc](https://github.com/plitc) For helping with backend dockerization
 
-## Sponsors:
-
-5$ or more Monthly sponsor appear here:
-- **tatra-labs**
-
+[![Star History Chart](https://api.star-history.com/svg?repos=Fosowl/agenticSeek&type=Date)](https://www.star-history.com/#Fosowl/agenticSeek&Date)
