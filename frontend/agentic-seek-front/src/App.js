@@ -6,9 +6,8 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { ResizableLayout } from "./components/ResizableLayout";
 import faviconPng from "./logo.png";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:7777';
+const BACKEND_URL = 'http://localhost:7777' || process.env.REACT_APP_BACKEND_URL;
 console.log("Using backend URL:", BACKEND_URL);
-
 
 function App() {
   const [query, setQuery] = useState("");
