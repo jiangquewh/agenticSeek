@@ -648,7 +648,7 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 ## Sponsors:
 
-Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpAPI to unlock more Jarvis-like capabilities. With SerpAPI, you can turbocharge your agent for specialized tasks while staying in full control.
+Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpApi to unlock more Jarvis-like capabilities. With SerpApi, you can turbocharge your agent for specialized tasks while staying in full control.
 
 <a href="https://serpapi.com/"><img src="./media/banners/sponsor_banner_serpapi.png" height="350" alt="SerpApi Banner" ></a>
 

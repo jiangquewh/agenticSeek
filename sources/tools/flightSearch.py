@@ -12,17 +12,17 @@ from sources.tools.tools import Tools
 class FlightSearch(Tools):
     def __init__(self, api_key: str = None):
         """
-        A tool to search for flight information using a flight number via SerpAPI.
+        A tool to search for flight information using a flight number via SerpApi.
         """
         super().__init__()
         self.tag = "flight_search"
         self.name = "Flight Search"
-        self.description = "Search for flight information using a flight number via SerpAPI."
+        self.description = "Search for flight information using a flight number via SerpApi."
         self.api_key = api_key or os.getenv("SERPAPI_API_KEY")
 
     def execute(self, blocks: str, safety: bool = True) -> str:
         if self.api_key is None:
-            return "Error: No SerpAPI key provided."
+            return "Error: No SerpApi key provided."
         
         for block in blocks:
             flight_number = block.strip().upper().replace('\n', '')
