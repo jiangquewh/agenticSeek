@@ -331,7 +331,7 @@ Defina `provider_server_address` para o IP da máquina que rodará o modelo.
 is_local = False
 provider_name = server
 provider_model = deepseek-r1:70b
-provider_server_address = x.x.x.x:3333
+provider_server_address = http://x.x.x.x:3333
 ```
 
 Próximo passo: [Inicie os serviços e rode o AgenticSeek](#Start-services-and-Run)

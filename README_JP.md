@@ -329,7 +329,7 @@ LLMサービスは`ollama`または`llamacpp`から選択可能です。
 is_local = False
 provider_name = server
 provider_model = deepseek-r1:70b
-provider_server_address = x.x.x.x:3333
+provider_server_address = http://x.x.x.x:3333
 ```
 
 次のステップ: [サービスの起動とAgenticSeekの実行](#Start-services-and-Run)  
