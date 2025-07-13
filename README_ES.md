@@ -329,7 +329,7 @@ Establece `provider_server_address` a la dirección IP de la máquina que ejecut
 is_local = False
 provider_name = server
 provider_model = deepseek-r1:70b
-provider_server_address = x.x.x.x:3333
+provider_server_address = http://x.x.x.x:3333
 ```
 
 Siguiente paso: [Iniciar servicios y ejecutar AgenticSeek](#Iniciar-servicios-y-ejecutar)

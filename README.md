@@ -249,11 +249,13 @@ Next step: [Start services and run AgenticSeek](#Start-services-and-Run)
 
 By default AgenticSeek is run fully in docker.
 
+**Option 1:** Run in Docker, use web interface:
+
 Start required services. This will start all services from the docker-compose.yml, including:
     - searxng
     - redis (required by searxng)
     - frontend
-    - backend (if using `full`)
+    - backend (if using `full` when using the web interface)
 
 ```sh
 ./start_services.sh full # MacOS
@@ -266,7 +268,7 @@ Go to `http://localhost:3000/` and you should see the web interface.
 
 *Troubleshooting service start:* If these scripts fail, ensure Docker Engine is running and Docker Compose (V2, `docker compose`) is correctly installed. Check the output in the terminal for error messages. See [FAQ: Help! I get an error when running AgenticSeek or its scripts.](#faq-troubleshooting)
 
-**Optional:** Run on host (CLI mode):
+**Option 2:** CLI mode:
 
 To run with CLI interface you would have to install package on host:
 
@@ -275,7 +277,10 @@ To run with CLI interface you would have to install package on host:
 ./install.bat # windows
 ```
 
-Start services:
+Start required services. This will start some services from the docker-compose.yml, including:
+    - searxng
+    - redis (required by searxng)
+    - frontend
 
 ```sh
 ./start_services.sh # MacOS
@@ -375,7 +380,7 @@ Set the `provider_server_address` to the ip address of the machine that will run
 is_local = False
 provider_name = server
 provider_model = deepseek-r1:70b
-provider_server_address = x.x.x.x:3333
+provider_server_address = http://x.x.x.x:3333
 ```
 
 

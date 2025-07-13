@@ -327,7 +327,7 @@ python3 app.py --provider ollama --port 3333
 is_local = False
 provider_name = server
 provider_model = deepseek-r1:70b
-provider_server_address = x.x.x.x:3333
+provider_server_address = http://x.x.x.x:3333
 ```
 
 下一步：[啟動服務並運行 AgenticSeek](#Start-services-and-Run)
