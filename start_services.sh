@@ -72,8 +72,10 @@ if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; 
 fi
 
 if command_exists "docker compose"; then
+    echo "Using newer docker compose (not docker-compose)."
     COMPOSE_CMD="docker compose"
 else
+    echo "Using old docker-compose."
     COMPOSE_CMD="docker-compose"
 fi
 
