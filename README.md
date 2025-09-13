@@ -57,7 +57,7 @@ mv .env.example .env
 ### 2. Change the .env file content
 
 ```sh
-SEARXNG_BASE_URL="http://127.0.0.1:8080"
+SEARXNG_BASE_URL="http://searxng:8080" # http://127.0.0.1:8080 if running on host
 REDIS_BASE_URL="redis://redis:6379/0"
 WORK_DIR="/Users/mlg/Documents/workspace_for_ai"
 OLLAMA_PORT="11434"
@@ -74,7 +74,7 @@ ANTHROPIC_API_KEY='optional'
 
 Update the `.env` file with your own values as needed:
 
-- **SEARXNG_BASE_URL**: Leave unchanged 
+- **SEARXNG_BASE_URL**: Leave unchanged unless running on host with CLI mode.
 - **REDIS_BASE_URL**: Leave unchanged 
 - **WORK_DIR**: Path to your working directory on your local machine. AgenticSeek will be able to read and interact with these files.
 - **OLLAMA_PORT**: Port number for the Ollama service.
@@ -277,6 +277,12 @@ To run with CLI interface you would have to install package on host:
 ./install.bat # windows
 ```
 
+Then you must change the SEARXNG_BASE_URL in `config.ini` to:
+
+```sh
+SEARXNG_BASE_URL="http://localhost:8080"
+```
+
 Start required services. This will start some services from the docker-compose.yml, including:
     - searxng
     - redis (required by searxng)
@@ -286,6 +292,8 @@ Start required services. This will start some services from the docker-compose.y
 ./start_services.sh # MacOS
 start start_services.cmd # Window
 ```
+
+Run: uv run: `uv run python -m ensurepip` to ensure uv has pip enabled.
 
 Use the CLI: `uv run cli.py`
 
@@ -614,6 +622,14 @@ Exception: Provider lm-studio failed: HTTP request failed: No connection adapter
 raise ValueError("SearxNG base URL must be provided either as an argument or via the SEARXNG_BASE_URL environment variable.")
 ValueError: SearxNG base URL must be provided either as an argument or via the SEARXNG_BASE_URL environment variable.`
 ```
+
+This might arise if you are running the CLI mode with the wrong base url for searxng.
+
+The SEARXNG_BASE_URL should be depending on whenever you run in docker or on host:
+
+**Run on host**: `SEARXNG_BASE_URL="http://localhost:8080"`
+
+**Run fully in docker (web interface)**: `SEARXNG_BASE_URL="http://searxng:8080"`
 
 ## FAQ
 

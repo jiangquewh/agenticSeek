@@ -10,7 +10,7 @@ RUN apt-get update -y && apt-get install -y \
     unzip \
     xvfb \
     libxss1 \
-    libappindicator1 \
+    #libappindicator1 \
     fonts-liberation \
     libnss3 \
     libatk1.0-0 \
