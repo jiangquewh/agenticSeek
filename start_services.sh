@@ -21,7 +21,7 @@ max_size_bytes=$((2 * 1024 * 1024 * 1024 * 10))
 echo "Mounting $WORK_DIR ($dir_size_bytes bytes) to docker."
 
 if [ "$dir_size_bytes" -gt "$max_size_bytes" ]; then
-    echo "Error: WORK_DIR ($WORK_DIR) contains more than 2GB of data ($(du -sh "$WORK_DIR" 2>/dev/null | awk '{print $1}'))."
+    echo "Error: WORK_DIR ($WORK_DIR) contains more than 20GB of data ($(du -sh "$WORK_DIR" 2>/dev/null | awk '{print $1}'))."
     exit 1
 fi
 
@@ -71,7 +71,7 @@ if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; 
     exit 1
 fi
 
-if command_exists docker compose; then
+if command_exists "docker compose"; then
     COMPOSE_CMD="docker compose"
 else
     COMPOSE_CMD="docker-compose"
