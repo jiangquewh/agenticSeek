@@ -277,6 +277,12 @@ To run with CLI interface you would have to install package on host:
 ./install.bat # windows
 ```
 
+Then you must change the SEARXNG_BASE_URL in `config.ini` to:
+
+```sh
+SEARXNG_BASE_URL="http://localhost:8080"
+```
+
 Start required services. This will start some services from the docker-compose.yml, including:
     - searxng
     - redis (required by searxng)
@@ -286,6 +292,8 @@ Start required services. This will start some services from the docker-compose.y
 ./start_services.sh # MacOS
 start start_services.cmd # Window
 ```
+
+Run: uv run: `uv run python -m ensurepip` to ensure uv has pip enabled.
 
 Use the CLI: `uv run cli.py`
 

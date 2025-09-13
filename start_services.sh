@@ -16,7 +16,7 @@ else
     dir_size_bytes=$(du -s --bytes "$WORK_DIR" 2>/dev/null | awk '{print $1}')
 fi
 
-max_size_bytes=$((2 * 1024 * 1024 * 1024))
+max_size_bytes=$((2 * 1024 * 1024 * 1024 * 10))
 
 echo "Mounting $WORK_DIR ($dir_size_bytes bytes) to docker."
 
@@ -71,10 +71,10 @@ if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; 
     exit 1
 fi
 
-if command_exists docker-compose; then
-    COMPOSE_CMD="docker-compose"
-else
+if command_exists docker compose; then
     COMPOSE_CMD="docker compose"
+else
+    COMPOSE_CMD="docker-compose"
 fi
 
 # Check if docker-compose.yml exists
