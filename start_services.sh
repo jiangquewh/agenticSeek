@@ -64,19 +64,18 @@ else
 fi
 
 # Check if Docker Compose is installed
-if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; then
-    echo "Error: Docker Compose is not installed. Please install it first."
-    echo "On Ubuntu: sudo apt install docker-compose"
-    echo "Or via pip: pip install docker-compose"
-    exit 1
-fi
-
-if command_exists "docker compose"; then
-    echo "Using newer docker compose (not docker-compose)."
+# Prefer the newer 'docker compose' command if available
+if docker compose version >/dev/null 2>&1; then
+    echo "Using newer docker compose (v2)."
     COMPOSE_CMD="docker compose"
-else
+elif command_exists docker-compose; then
     echo "Using old docker-compose."
     COMPOSE_CMD="docker-compose"
+else
+    echo "Error: Docker Compose is not installed. Please install it first."
+    echo "On Ubuntu: sudo apt install docker-compose-plugin"
+    echo "Or install Docker Desktop which includes compose v2"
+    exit 1
 fi
 
 # Check if docker-compose.yml exists
