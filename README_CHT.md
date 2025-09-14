@@ -229,6 +229,7 @@ provider_server_address = # 當 is_local = False 時，對於大多數 API 通�
 | Deepseek     | `deepseek`      | 否     | 通過他們的 API 使用 Deepseek 模型。                | [platform.deepseek.com](https://platform.deepseek.com) |
 | Hugging Face | `huggingface`   | 否     | 使用 Hugging Face Inference API 中的模型。       | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) |
 | TogetherAI   | `togetherAI`    | 否     | 通過 TogetherAI API 使用各種開源模型。| [api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys) |
+| OpenRouter   | `openrouter`    | No     | 通过 OpenRouter 使用各种开源模型| [https://openrouter.ai/](https://openrouter.ai/) |
 
 *注意：*
 *   我們不建議將 `gpt-4o` 或其他 OpenAI 模型用於複雜的網頁瀏覽和任務規劃，因為當前的提示優化針對 Deepseek 等模型。
