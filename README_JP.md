@@ -229,6 +229,7 @@ provider_server_address = # is_local = Falseの場合、ほとんどのAPIでは
 | Deepseek     | `deepseek`      | いいえ     | 彼らのAPIを通じてDeepseekモデルを使用。                | [platform.deepseek.com](https://platform.deepseek.com) |
 | Hugging Face | `huggingface`   | いいえ     | Hugging Face Inference APIのモデルを使用。       | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) |
 | TogetherAI   | `togetherAI`    | いいえ     | TogetherAI APIを通じて様々なオープンソースモデルを使用。| [api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys) |
+| OpenRouter   | `openrouter`    | いいえ     | OpenRouter APIを通じて様々なオープンソースモデルを使用。| [openrouter.api](https://openrouter.ai/) |
 
 *注:*
 *   複雑なウェブブラウジングとタスクプランニングには`gpt-4o`や他のOpenAIモデルの使用は推奨しません。現在のプロンプト最適化はDeepseekなどのモデルを対象としているためです。
