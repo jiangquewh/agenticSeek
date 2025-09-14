@@ -121,7 +121,15 @@ To run LLMs locally, you'll need sufficient hardware. At a minimum, a GPU capabl
 
 **Setup your local provider**  
 
-Start your local provider, for example with ollama:
+Start your local provider (for example with ollama):
+
+Unless you wish to to run AgenticSeek on host (CLI mode), export or set the provider listen address:
+
+```sh
+export OLLAMA_HOST=0.0.0.0:11434
+```
+
+Then, start you provider:
 
 ```sh
 ollama serve
