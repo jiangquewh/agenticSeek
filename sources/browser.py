@@ -15,6 +15,7 @@ import undetected_chromedriver as uc
 import chromedriver_autoinstaller
 import certifi
 import ssl
+import subprocess
 import time
 import random
 import os
@@ -76,20 +77,51 @@ def get_random_user_agent() -> str:
     ]
     return random.choice(user_agents)
 
+def get_chromedriver_version(chromedriver_path: str) -> str:
+    """Get the major version of a chromedriver binary. Returns empty string on failure."""
+    try:
+        result = subprocess.run(
+            [chromedriver_path, "--version"],
+            capture_output=True, text=True, timeout=10
+        )
+        # Output format: "ChromeDriver 125.0.6422.78 (...)"
+        return result.stdout.strip().split()[1].split('.')[0]
+    except Exception:
+        return ""
+
+def is_chromedriver_compatible(chromedriver_path: str) -> bool:
+    """Check if a chromedriver binary is compatible with the installed Chrome version."""
+    try:
+        chrome_version = chromedriver_autoinstaller.get_chrome_version()
+        if not chrome_version:
+            return True  # Can't determine Chrome version, assume compatible
+        chrome_major = chrome_version.split('.')[0]
+        driver_major = get_chromedriver_version(chromedriver_path)
+        if not driver_major:
+            return True  # Can't determine driver version, assume compatible
+        return chrome_major == driver_major
+    except Exception:
+        return True  # On any error, assume compatible to avoid blocking
+
 def install_chromedriver() -> str:
     """
     Install the ChromeDriver if not already installed. Return the path.
+    Automatically updates the driver if the version does not match the installed Chrome.
     """
     # First try to use chromedriver in the project root directory (as per README)
     project_root_chromedriver = "./chromedriver"
     if os.path.exists(project_root_chromedriver) and os.access(project_root_chromedriver, os.X_OK):
-        print(f"Using ChromeDriver from project root: {project_root_chromedriver}")
-        return project_root_chromedriver
+        if is_chromedriver_compatible(project_root_chromedriver):
+            print(f"Using ChromeDriver from project root: {project_root_chromedriver}")
+            return project_root_chromedriver
+        print("ChromeDriver in project root is outdated, attempting auto-update...")
     
     # Then try to use the system-installed chromedriver
     chromedriver_path = shutil.which("chromedriver")
     if chromedriver_path:
-        return chromedriver_path
+        if is_chromedriver_compatible(chromedriver_path):
+            return chromedriver_path
+        print(f"System ChromeDriver at {chromedriver_path} is outdated, attempting auto-update...")
     
     # In Docker environment, try the fixed path
     if os.path.exists('/.dockerenv'):
@@ -98,9 +130,9 @@ def install_chromedriver() -> str:
             print(f"Using Docker ChromeDriver at {docker_chromedriver_path}")
             return docker_chromedriver_path
     
-    # Fallback to auto-installer only if no other option works
+    # Auto-install matching ChromeDriver version
     try:
-        print("ChromeDriver not found, attempting to install automatically...")
+        print("Installing matching ChromeDriver version automatically...")
         chromedriver_path = chromedriver_autoinstaller.install()
     except Exception as e:
         raise FileNotFoundError(
