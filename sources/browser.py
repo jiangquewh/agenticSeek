@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -530,7 +530,16 @@ class Browser:
                 if input_type in ["hidden", "submit", "button", "image"] or not element["displayed"]:
                     continue
                 input_name = element.get("text") or element.get("id") or input_type
-                if input_type == "checkbox" or input_type == "radio":
+                if input_type == "select":
+                    options = element.get("options", [])
+                    options_str = ", ".join(opt["text"] for opt in options if opt["text"])
+                    selected = next((opt["text"] for opt in options if opt.get("selected")), "")
+                    form_strings.append(f"[{input_name}](select: {selected}) options: [{options_str}]")
+                elif input_type == "textarea":
+                    form_strings.append(f"[{input_name}]("")")
+                elif input_type == "file":
+                    form_strings.append(f"[{input_name}](file: )")
+                elif input_type == "checkbox" or input_type == "radio":
                     try:
                         checked_status = "checked" if element.is_selected() else "unchecked"
                     except Exception as e:
@@ -694,7 +703,29 @@ class Browser:
                     self.logger.warning(f"Element '{name}' is not interactable (not displayed or disabled)")
                     continue
                 input_type = (element.get_attribute("type") or "text").lower()
-                if input_type in ["checkbox", "radio"]:
+                tag_name = (element.tag_name or "").lower()
+                if tag_name == "select":
+                    try:
+                        select = Select(element)
+                        select.select_by_visible_text(value)
+                        self.logger.info(f"Selected '{value}' for {name}")
+                    except Exception:
+                        try:
+                            select.select_by_value(value)
+                            self.logger.info(f"Selected value '{value}' for {name}")
+                        except Exception as sel_e:
+                            self.logger.warning(f"Could not select '{value}' for {name}: {sel_e}")
+                elif tag_name == "textarea":
+                    element.clear()
+                    element.send_keys(value)
+                    self.logger.info(f"Filled textarea {name}")
+                elif input_type == "file":
+                    if os.path.isabs(value) and os.path.exists(value):
+                        element.send_keys(value)
+                        self.logger.info(f"Uploaded file '{value}' for {name}")
+                    else:
+                        self.logger.warning(f"File not found: {value}")
+                elif input_type in ["checkbox", "radio"]:
                     is_checked = element.is_selected()
                     should_be_checked = value.lower() == "checked"
 
