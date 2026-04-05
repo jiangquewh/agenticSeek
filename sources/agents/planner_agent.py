@@ -264,6 +264,8 @@ class PlannerAgent(Agent):
         agents_tasks = []
         required_infos = None
         agents_work_result = dict()
+        answer = ""
+        self.stop = False
 
         self.status_message = "Making a plan..."
         agents_tasks = await self.make_plan(goal)
