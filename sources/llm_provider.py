@@ -17,6 +17,9 @@ from sources.utility import pretty_print, animate_thinking
 class Provider:
     def __init__(self, provider_name, model, server_address="127.0.0.1:5000", is_local=False):
         self.provider_name = provider_name.lower()
+        # Normalize provider name aliases (e.g. README documents 'togetherAI' but canonical key is 'together')
+        _aliases = {"togetherai": "together"}
+        self.provider_name = _aliases.get(self.provider_name, self.provider_name)
         self.model = model
         self.is_local = is_local
         self.server_ip = server_address
@@ -32,13 +35,14 @@ class Provider:
             "together": self.together_fn,
             "dsk_deepseek": self.dsk_deepseek,
             "openrouter": self.openrouter_fn,
+            "anthropic": self.anthropic_fn,
             "minimax": self.minimax_fn,
             "test": self.test_fn
         }
         self.logger = Logger("provider.log")
         self.api_key = None
         self.internal_url, self.in_docker = self.get_internal_url()
-        self.unsafe_providers = ["openai", "deepseek", "dsk_deepseek", "together", "google", "openrouter", "minimax"]
+        self.unsafe_providers = ["openai", "deepseek", "dsk_deepseek", "together", "google", "openrouter", "anthropic", "minimax"]
         if self.provider_name not in self.available_providers:
             raise ValueError(f"Unknown provider: {provider_name}")
         if self.provider_name in self.unsafe_providers and self.is_local == False:
@@ -388,7 +392,6 @@ class Provider:
             if "LM Studio" in str(e):
                 raise  # Re-raise our custom exceptions
             raise Exception(f"Unexpected error: {str(e)}") from e
-        return thought
 
     def openrouter_fn(self, history, verbose=False):
         """
@@ -468,13 +471,13 @@ class Provider:
                 if chunk['type'] == 'text':
                     thought += chunk['content']
             return thought
-        except AuthenticationError:
+        except AuthenticationError as e:
             raise AuthenticationError("Authentication failed. Please check your token.") from e
-        except RateLimitError:
+        except RateLimitError as e:
             raise RateLimitError("Rate limit exceeded. Please wait before making more requests.") from e
         except CloudflareError as e:
             raise CloudflareError(f"Cloudflare protection encountered: {str(e)}") from e
-        except NetworkError:
+        except NetworkError as e:
             raise NetworkError("Network error occurred. Check your internet connection.") from e
         except APIError as e:
             raise APIError(f"API error occurred: {str(e)}") from e

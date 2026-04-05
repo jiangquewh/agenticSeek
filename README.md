@@ -240,6 +240,7 @@ provider_server_address = # Typically ignored or can be left blank when is_local
 | Hugging Face | `huggingface`   | No     | Use models from Hugging Face Inference API.       | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) |
 | TogetherAI   | `togetherAI`    | No     | Use various open-source models via TogetherAI API.| [api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys) |
 | OpenRouter   | `openrouter`    | No     | Use OpenRouter Models| [https://openrouter.ai/](https://openrouter.ai/) |
+| Anthropic    | `anthropic`     | No     | Use Claude models via Anthropic's API.            | [console.anthropic.com](https://console.anthropic.com/) |
 | MiniMax      | `minimax`       | No     | Use MiniMax M2.5 series models (e.g., MiniMax-M2.5).| [platform.minimax.io](https://platform.minimax.io/user-center/basic-information) |
 
 *Note:*
