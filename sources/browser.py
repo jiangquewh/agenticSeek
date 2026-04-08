@@ -21,6 +21,7 @@ import random
 import os
 import shutil
 import uuid
+import socket
 import tempfile
 import markdownify
 import sys
@@ -153,6 +154,12 @@ def bypass_ssl() -> str:
     pretty_print("Bypassing SSL verification issues, we strongly advice you update your certifi SSL certificate.", color="warning")
     ssl._create_default_https_context = ssl._create_unverified_context
 
+def get_free_port() -> int:
+    """Find and return a free TCP port on the local machine."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0))
+        return s.getsockname()[1]
+
 def create_chrome_options(headless=False, stealth_mode=True, crx_path="./crx/nopecha.crx", lang="en") -> Options:
     """Create Chrome options - separated for reusability."""
     chrome_options = Options()
@@ -179,7 +186,7 @@ def create_chrome_options(headless=False, stealth_mode=True, crx_path="./crx/nop
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-background-timer-throttling")
     chrome_options.add_argument("--timezone=Europe/Paris")
-    chrome_options.add_argument('--remote-debugging-port=9222')
+    chrome_options.add_argument(f'--remote-debugging-port={get_free_port()}')
     chrome_options.add_argument('--disable-background-timer-throttling')
     chrome_options.add_argument('--disable-backgrounding-occluded-windows')
     chrome_options.add_argument('--disable-renderer-backgrounding')
