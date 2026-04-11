@@ -165,7 +165,11 @@ class Provider:
         Use local or remote Ollama server to generate text.
         """
         thought = ""
-        host = f"{self.internal_url}:11434" if self.is_local else f"http://{self.server_address}"
+        if self.is_local:
+            server_port = self.server_address.split(":")[-1] if ":" in str(self.server_address) else "11434"
+            host = f"{self.internal_url}:{server_port}"
+        else:
+            host = f"http://{self.server_address}"
         client = OllamaClient(host=host)
 
         try:
