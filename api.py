@@ -299,4 +299,4 @@ if __name__ == "__main__":
         port = int(envport)
     else:
         port = 7777
-    uvicorn.run(api, host="0.0.0.0", port=7777)
+    uvicorn.run(api, host="0.0.0.0", port=port)
