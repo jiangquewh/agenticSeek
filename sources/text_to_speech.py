@@ -17,8 +17,10 @@ except ImportError:
 
 if __name__ == "__main__":
     from utility import pretty_print, animate_thinking
+    from speech_to_text import notify_tts_start, notify_tts_stop
 else:
     from sources.utility import pretty_print, animate_thinking
+    from sources.speech_to_text import notify_tts_start, notify_tts_stop
 
 class Speech():
     """
@@ -44,6 +46,7 @@ class Speech():
         self.voice = self.voice_map[language][voice_idx]
         self.speed = 1.2
         self.voice_folder = ".voices"
+        self.last_spoken_text = ""
         self.create_voice_folder(self.voice_folder)
     
     def create_voice_folder(self, path: str = ".voices") -> None:
@@ -72,21 +75,26 @@ class Speech():
         sentence = self.clean_sentence(sentence)
         audio_file = f"{self.voice_folder}/sample_{self.voice_map[self.language][voice_idx]}.wav"
         self.voice = self.voice_map[self.language][voice_idx]
+        self.last_spoken_text = " ".join(sentence.lower().split())
         generator = self.pipeline(
             sentence, voice=self.voice,
             speed=self.speed, split_pattern=r'\n+'
         )
-        for i, (_, _, audio) in enumerate(generator):
-            if 'ipykernel' in modules: #only display in jupyter notebook.
-                display(Audio(data=audio, rate=24000, autoplay=i==0), display_id=False)
-            sf.write(audio_file, audio, 24000) # save each audio file
-            if platform.system().lower() == "windows":
-                import winsound
-                winsound.PlaySound(audio_file, winsound.SND_FILENAME)
-            elif platform.system().lower() == "darwin":  # macOS
-                subprocess.call(["afplay", audio_file])
-            else: # linux or other.
-                subprocess.call(["aplay", audio_file])
+        notify_tts_start()
+        try:
+            for i, (_, _, audio) in enumerate(generator):
+                if 'ipykernel' in modules: #only display in jupyter notebook.
+                    display(Audio(data=audio, rate=24000, autoplay=i==0), display_id=False)
+                sf.write(audio_file, audio, 24000) # save each audio file
+                if platform.system().lower() == "windows":
+                    import winsound
+                    winsound.PlaySound(audio_file, winsound.SND_FILENAME)
+                elif platform.system().lower() == "darwin":  # macOS
+                    subprocess.call(["afplay", audio_file])
+                else: # linux or other.
+                    subprocess.call(["aplay", audio_file])
+        finally:
+            notify_tts_stop()
 
     def replace_url(self, url: re.Match) -> str:
         """
