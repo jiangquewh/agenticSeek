@@ -41,9 +41,9 @@ class Interaction:
         self.stt = None
         self.is_generating = False
         self.languages = langs
-        if tts_enabled:
+        if tts_enabled and not self.in_docker():
             self.initialize_tts()
-        if stt_enabled:
+        if stt_enabled and not self.in_docker():
             self.initialize_stt()
         if recover_last_session:
             self.load_last_session()
@@ -53,6 +53,15 @@ class Interaction:
         """Get the primary TTS language."""
         lang = self.languages[0]
         return lang
+
+    def in_docker(self) -> bool:
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+        url = os.getenv("DOCKER_INTERNAL_URL")
+        if not url: # running on host
+            return False
+        return True
 
     def initialize_tts(self):
         """Initialize TTS, letting the user audition and pick a voice.
