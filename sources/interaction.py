@@ -4,8 +4,15 @@ from typing import List, Tuple, Type, Dict
 from sources.text_to_speech import Speech
 from sources.utility import pretty_print, animate_thinking
 from sources.router import AgentRouter
-from sources.speech_to_text import AudioTranscriber, AudioRecorder
+from sources.speech_to_text import Speech2Text
 import threading
+
+CONFIRMATION_PHRASES = [
+    "do it", "go ahead", "execute", "run", "start", "thanks", "would ya",
+    "please", "okay", "proceed", "continue", "go on", "do that", "go it",
+    "do you understand",
+]
+EXIT_PHRASES = {"exit", "goodbye"}
 
 
 class Interaction:
@@ -30,8 +37,7 @@ class Interaction:
         self.router = AgentRouter(self.agents, supported_language=langs)
         self.ai_name = self.find_ai_name()
         self.speech = None
-        self.transcriber = None
-        self.recorder = None
+        self.stt = None
         self.is_generating = False
         self.languages = langs
         if tts_enabled:
@@ -54,11 +60,12 @@ class Interaction:
             self.speech = Speech(enable=self.tts_enabled, language=self.get_spoken_language(), voice_idx=1)
 
     def initialize_stt(self):
-        """Initialize STT."""
-        if not self.transcriber or not self.recorder:
-            animate_thinking("Initializing speech recognition...", color="status")
-            self.transcriber = AudioTranscriber(self.ai_name, verbose=False)
-            self.recorder = AudioRecorder()
+        """Initialize STT and start listening to the microphone."""
+        if self.stt is not None:
+            return
+        animate_thinking("Initializing speech recognition...", color="status")
+        self.stt = Speech2Text(lang="en-us")
+        self.stt.start_listening()
     
     def emit_status(self):
         """Print the current status of agenticSeek."""
@@ -115,16 +122,56 @@ class Interaction:
                 return None
         return buffer
     
+    def _last_spoken_text(self) -> str:
+        """Return the last text spoken by TTS (for echo filtering)."""
+        if self.speech is None:
+            return ""
+        return getattr(self.speech, "last_spoken_text", "") or ""
+
+    def _has_trigger(self, text: str) -> bool:
+        """Check if the AI's wake word appears in the transcript."""
+        return self.ai_name.lower() in text.lower()
+
+    def _has_confirmation(self, text: str) -> bool:
+        """Check if any confirmation phrase ends the user's turn."""
+        lowered = text.lower()
+        return any(phrase in lowered for phrase in CONFIRMATION_PHRASES)
+
     def transcription_job(self) -> str:
-        """Transcribe the audio from the microphone."""
-        self.recorder = AudioRecorder(verbose=True)
-        self.transcriber = AudioTranscriber(self.ai_name, verbose=True)
-        self.transcriber.start()
-        self.recorder.start()
-        self.recorder.join()
-        self.transcriber.join()
-        query = self.transcriber.get_transcript()
-        if query == "exit" or query == "goodbye":
+        """
+        Listen until the wake word is heard, then collect speech until a
+        confirmation phrase is detected. Returns the spoken query, or None
+        if the user said an exit phrase.
+        """
+        if self.stt is None:
+            self.initialize_stt()
+
+        pretty_print(f"Say '{self.ai_name}' to begin, then a confirmation phrase to send.", color="status")
+        collected: List[str] = []
+        triggered = False
+
+        while True:
+            result = self.stt.get_result(self._last_spoken_text(), timeout=0.1)
+            if not result:
+                continue
+            text = result.get("text", "").strip()
+            if not text:
+                continue
+            pretty_print(f"Heard: {text}", color="info")
+
+            if not triggered:
+                if self._has_trigger(text):
+                    triggered = True
+                    collected = [text]
+                    pretty_print("Trigger detected, listening...", color="success")
+                continue
+
+            collected.append(text)
+            if self._has_confirmation(text):
+                break
+
+        query = " ".join(collected).strip()
+        if query.lower() in EXIT_PHRASES:
             return None
         return query
 
