@@ -288,7 +288,7 @@ class PlannerAgent(Agent):
             if speech_module: speech_module.speak(f"I will {task_name}. I assigned the {task['agent']} agent to the task.")
 
             if agents_work_result is not None:
-                required_infos = self.get_work_result_agent(task['need'], agents_work_result)
+                required_infos = self.get_work_result_agent(task.get('need', []), agents_work_result)
             try:
                 answer, success = await self.start_agent_process(task, required_infos)
             except Exception as e:

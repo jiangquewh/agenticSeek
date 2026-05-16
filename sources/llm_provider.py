@@ -65,7 +65,7 @@ class Provider:
                 "Please add it to your .env file and restart the server."
             )
         return api_key
-    
+
     def get_internal_url(self):
         load_dotenv()
         url = os.getenv("DOCKER_INTERNAL_URL")
@@ -193,7 +193,7 @@ class Provider:
             if hasattr(e, 'status_code') and e.status_code == 404:
                 animate_thinking(f"Downloading {self.model}...")
                 client.pull(self.model)
-                self.ollama_fn(history, verbose)
+                return self.ollama_fn(history, verbose)
             if "refused" in str(e).lower():
                 raise Exception(
                     f"Ollama connection refused at {host}. Is the server running?"
@@ -452,7 +452,7 @@ class Provider:
         """
         load_dotenv()
         base_url = os.getenv("MINIMAX_BASE_URL", "https://api.minimax.io/v1")
-        
+
         client = OpenAI(api_key=self.api_key, base_url=base_url)
         if self.is_local:
             raise Exception("MiniMax is not available for local use. Change config.ini")
