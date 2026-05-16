@@ -8,12 +8,12 @@ from sources.speech_to_text import Speech2Text
 import threading
 
 CONFIRMATION_PHRASES = [
-    "do it", "go ahead", "execute", "thanks", "thank you"
-    "please", "okay", "proceed", "that's all", "that's it", "no more", "stop listening", "end listening", "that's enough"
-    "that's good", "all done", "finished", "done", "that's fine", "that's great", "looks good", "sounds good"
-    "start", "begin", "get started", "let's go", "let's do it"
+    "do it", "go ahead", "execute", "thanks", "thank you",
+    "please", "okay", "proceed", "that's all", "that's it", "no more", "stop listening", "end listening", "that's enough",
+    "that's good", "all done", "finished", "done", "that's fine", "that's great", "looks good", "sounds good",
+    "start", "begin", "get started", "let's go", "let's do it",
 ]
-EXIT_PHRASES = ["exit", "goodbye", "bye", "see you", "quit", "stop", "end", "farewell", "later", "see you"]
+EXIT_PHRASES = ["exit", "goodbye", "bye", "see you", "quit", "stop", "end", "farewell", "later"]
 
 
 class Interaction:
@@ -249,7 +249,7 @@ class Interaction:
             if self._has_confirmation(text):
                 break
 
-        collected.append("\n[User input from Speech to text transcription, may be inaccurate. If take a guess at user intent or ask for clarification if unsure.]\n")
+        collected.append("\n[User input from Speech to text transcription, may be inaccurate; Guess user intent or ask for clarification.]\n")
         query = " ".join(collected).strip()
         if query.lower() in EXIT_PHRASES:
             return None
