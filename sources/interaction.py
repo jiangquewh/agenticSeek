@@ -8,11 +8,12 @@ from sources.speech_to_text import Speech2Text
 import threading
 
 CONFIRMATION_PHRASES = [
-    "do it", "go ahead", "execute", "run", "start", "thanks", "would ya",
-    "please", "okay", "proceed", "continue", "go on", "do that", "go it",
-    "do you understand",
+    "do it", "go ahead", "execute", "thanks", "thank you"
+    "please", "okay", "proceed", "that's all", "that's it", "no more", "stop listening", "end listening", "that's enough"
+    "that's good", "all done", "finished", "done", "that's fine", "that's great", "looks good", "sounds good"
+    "start", "begin", "get started", "let's go", "let's do it"
 ]
-EXIT_PHRASES = {"exit", "goodbye"}
+EXIT_PHRASES = ["exit", "goodbye", "bye", "see you", "quit", "stop", "end", "farewell", "later", "see you"]
 
 
 class Interaction:
@@ -47,7 +48,7 @@ class Interaction:
         if recover_last_session:
             self.load_last_session()
         self.emit_status()
-    
+
     def get_spoken_language(self) -> str:
         """Get the primary TTS language."""
         lang = self.languages[0]
@@ -66,15 +67,16 @@ class Interaction:
         animate_thinking("Initializing speech recognition...", color="status")
         self.stt = Speech2Text(lang="en-us")
         self.stt.start_listening()
-    
+
     def emit_status(self):
         """Print the current status of agenticSeek."""
         if self.stt_enabled:
-            pretty_print(f"Text-to-speech trigger is {self.ai_name}", color="status")
+            pretty_print("Text-to-speech enabled", color="status")
+            pretty_print("Please speak very slowly and clearly for best results.", color="status")
         if self.tts_enabled:
             self.speech.speak("Hello, we are online and ready. What can I do for you ?")
         pretty_print("AgenticSeek is ready.", color="status")
-    
+
     def find_ai_name(self) -> str:
         """Find the name of the default AI. It is required for STT as a trigger word."""
         ai_name = "jarvis"
@@ -83,7 +85,7 @@ class Interaction:
                 ai_name = agent.agent_name
                 break
         return ai_name
-    
+
     def get_last_blocks_result(self) -> List[Dict]:
         """Get the last blocks result."""
         if self.current_agent is None:
@@ -92,14 +94,14 @@ class Interaction:
         for agent in self.agents:
             blks.extend(agent.get_blocks_result())
         return blks
-    
+
     def load_last_session(self):
         """Recover the last session."""
         for agent in self.agents:
             if agent.type == "planner_agent":
                 continue
             agent.memory.load_memory(agent.type)
-    
+
     def save_session(self):
         """Save the current session."""
         for agent in self.agents:
@@ -107,7 +109,7 @@ class Interaction:
 
     def is_active(self) -> bool:
         return self.is_active
-    
+
     def read_stdin(self) -> str:
         """Read the input from the user."""
         buffer = ""
@@ -121,7 +123,7 @@ class Interaction:
             if buffer == "exit" or buffer == "goodbye":
                 return None
         return buffer
-    
+
     def _last_spoken_text(self) -> str:
         """Return the last text spoken by TTS (for echo filtering)."""
         if self.speech is None:
@@ -146,9 +148,7 @@ class Interaction:
         if self.stt is None:
             self.initialize_stt()
 
-        pretty_print(f"Say '{self.ai_name}' to begin, then a confirmation phrase to send.", color="status")
         collected: List[str] = []
-        triggered = False
 
         while True:
             result = self.stt.get_result(self._last_spoken_text(), timeout=0.1)
@@ -157,19 +157,13 @@ class Interaction:
             text = result.get("text", "").strip()
             if not text:
                 continue
+            collected.append(text)
             pretty_print(f"Heard: {text}", color="info")
 
-            if not triggered:
-                if self._has_trigger(text):
-                    triggered = True
-                    collected = [text]
-                    pretty_print("Trigger detected, listening...", color="success")
-                continue
-
-            collected.append(text)
             if self._has_confirmation(text):
                 break
 
+        collected.append("\n[User input from Speech to text transcription, may be inaccurate. If take a guess at user intent or ask for clarification if unsure.]\n")
         query = " ".join(collected).strip()
         if query.lower() in EXIT_PHRASES:
             return None
@@ -187,12 +181,12 @@ class Interaction:
             return None
         self.last_query = query
         return query
-    
+
     def set_query(self, query: str) -> None:
         """Set the query"""
         self.is_active = True
         self.last_query = query
-    
+
     async def think(self) -> bool:
         """Request AI agents to process the user input."""
         push_last_agent_memory = False
@@ -214,19 +208,19 @@ class Interaction:
         if self.last_answer == tmp:
             self.last_answer = None
         return True
-    
+
     def get_updated_process_answer(self) -> str:
         """Get the answer from the last agent."""
         if self.current_agent is None:
             return None
         return self.current_agent.get_last_answer()
-    
+
     def get_updated_block_answer(self) -> str:
         """Get the answer from the last agent."""
         if self.current_agent is None:
             return None
         return self.current_agent.get_last_block_answer()
-    
+
     def speak_answer(self) -> None:
         """Speak the answer to the user in a non-blocking thread."""
         if self.last_query is None:
@@ -236,7 +230,7 @@ class Interaction:
                 speech_instance.speak(text)
             thread = threading.Thread(target=speak_in_thread, args=(self.speech, self.last_answer))
             thread.start()
-    
+
     def show_answer(self) -> None:
         """Show the answer to the user."""
         if self.last_query is None:
