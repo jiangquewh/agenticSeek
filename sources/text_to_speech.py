@@ -48,7 +48,10 @@ class Speech():
         self.voice_folder = ".voices"
         self.last_spoken_text = ""
         self.create_voice_folder(self.voice_folder)
-    
+
+    def available_voice_count(self, language: str) -> int:
+        return len(self.voice_map[language])
+
     def create_voice_folder(self, path: str = ".voices") -> None:
         """
         Create a folder to store the voices.
@@ -58,23 +61,21 @@ class Speech():
         if not os.path.exists(path):
             os.makedirs(path)
 
-    def speak(self, sentence: str, voice_idx: int = 1):
+    def set_voice(self, voice_idx: int):
+        self.voice = self.voice_map[self.language][voice_idx]
+
+    def speak(self, sentence: str):
         """
         Convert text to speech using an AI model and play the audio.
 
         Args:
             sentence (str): The text to convert to speech. Will be pre-processed.
-            voice_idx (int, optional): Index of the voice to use from the voice map.
         """
         if not self.pipeline or not IMPORT_FOUND:
             print("Pipeline disabled.")
             return
-        if voice_idx >= len(self.voice_map[self.language]):
-            pretty_print("Invalid voice number, using default voice", color="error")
-            voice_idx = 0
         sentence = self.clean_sentence(sentence)
-        audio_file = f"{self.voice_folder}/sample_{self.voice_map[self.language][voice_idx]}.wav"
-        self.voice = self.voice_map[self.language][voice_idx]
+        audio_file = f"{self.voice_folder}/sample.wav"
         self.last_spoken_text = " ".join(sentence.lower().split())
         generator = self.pipeline(
             sentence, voice=self.voice,
@@ -120,7 +121,7 @@ class Speech():
         path = m.group()
         parts = re.split(r'/|\\', path)
         return parts[-1] if parts else path
-    
+
     def shorten_paragraph(self, sentence):
         #TODO find a better way, we would like to have the TTS not be annoying, speak only useful informations
         """

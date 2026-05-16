@@ -55,10 +55,89 @@ class Interaction:
         return lang
 
     def initialize_tts(self):
-        """Initialize TTS."""
-        if not self.speech:
-            animate_thinking("Initializing text-to-speech...", color="status")
-            self.speech = Speech(enable=self.tts_enabled, language=self.get_spoken_language(), voice_idx=1)
+        """Initialize TTS, letting the user audition and pick a voice.
+        Returns:
+            None. Sets self.speech to a ready Speech instance.
+        """
+        if self.speech:
+            return
+
+        animate_thinking("Initializing text-to-speech...", color="status")
+        language = self.get_spoken_language()
+        voice_idx = self._select_voice_interactively(language)
+        self.speech = Speech(enable=self.tts_enabled,
+                             language=language,
+                             voice_idx=voice_idx)
+        self.speech.speak("Voice confirmed. We are online and ready.")
+
+
+    def _select_voice_interactively(self, language):
+        """Let the user audition voices and choose one by index.
+        Args:
+            language: Spoken language code passed to Speech.
+        Returns:
+            int: The chosen voice index.
+        """
+        voice_count = Speech().available_voice_count(language)
+        if voice_count <= 1:
+            return 0
+
+        SAMPLE_LINE = "Hello, this is how I sound. Should I use this voice?"
+        idx = 0
+        preview = Speech(enable=True, language=language, voice_idx=idx)
+        while True:
+            pretty_print(f"Voice {idx + 1}/{voice_count}", color="status")
+            preview.set_voice(idx)
+            preview.speak(SAMPLE_LINE)
+            choice = self._prompt_voice_choice(idx, voice_count)
+            if choice == "accept":
+                return idx
+            idx = self._next_voice_index(choice, idx, voice_count)
+
+
+    def _prompt_voice_choice(self, current_idx, voice_count):
+        """Read and normalize the user's voice-browsing input.
+
+        Args:
+            current_idx: Index of the voice just auditioned.
+            voice_count: Total number of selectable voices.
+
+        Returns:
+            'accept' to keep current_idx, 'next' to advance, or an
+            int index to jump to a specific voice.
+        """
+        pretty_print("[y] keep  [n] next  [number] jump  [q] keep & quit",
+                     color="status")
+        raw = input().strip().lower()
+        if raw in ("y", "yes", "q", ""):
+            return "accept"
+        if raw in ("n", "no"):
+            return "next"
+        if raw.isdigit():
+            return self._clamp_index(int(raw) - 1, voice_count)
+        return "next"
+
+
+    def _next_voice_index(self, choice, current_idx, voice_count):
+        """Resolve the next index from a normalized browsing choice.
+
+        Args:
+            choice: 'next' or an explicit int index.
+            current_idx: Current voice index.
+            voice_count: Total number of selectable voices.
+
+        Returns:
+            int: The next voice index, wrapped within range.
+        """
+        if isinstance(choice, int):
+            return choice
+        return (current_idx + 1) % voice_count
+
+
+    @staticmethod
+    def _clamp_index(idx, voice_count):
+        """Clamp a requested index into the valid voice range."""
+        return max(0, min(idx, voice_count - 1))
 
     def initialize_stt(self):
         """Initialize STT and start listening to the microphone."""
@@ -73,8 +152,6 @@ class Interaction:
         if self.stt_enabled:
             pretty_print("Text-to-speech enabled", color="status")
             pretty_print("Please speak very slowly and clearly for best results.", color="status")
-        if self.tts_enabled:
-            self.speech.speak("Hello, we are online and ready. What can I do for you ?")
         pretty_print("AgenticSeek is ready.", color="status")
 
     def find_ai_name(self) -> str:
