@@ -32,7 +32,6 @@ https://github.com/user-attachments/assets/b8ca60e9-7b3b-4533-840e-08f9ac426316
 
 Disclaimer: This demo, including all the files that appear (e.g: CV_candidates.zip), are entirely fictional. We are not a corporation, we seek open-source contributors not candidates.
 
-> 🛠⚠️️ **Active Work in Progress**
 
 > 🙏 This project started as a side-project and has zero roadmap and zero funding. It's grown way beyond what I expected by ending in GitHub Trending. Contributions, feedback, and patience are deeply appreciated.
 
@@ -75,7 +74,7 @@ ANTHROPIC_API_KEY='optional'
 Update the `.env` file with your own values as needed:
 
 - **SEARXNG_BASE_URL**: Leave unchanged unless running on host with CLI mode.
-- **REDIS_BASE_URL**: Leave unchanged 
+- **REDIS_BASE_URL**: Leave unchanged
 - **WORK_DIR**: Path to your working directory on your local machine. AgenticSeek will be able to read and interact with these files.
 - **OLLAMA_PORT**: Port number for the Ollama service.
 - **LM_STUDIO_PORT**: Port number for the LM Studio service.
@@ -87,14 +86,14 @@ Update the `.env` file with your own values as needed:
 
 Make sure Docker is installed and running on your system. You can start Docker using the following commands:
 
-- **On Linux/macOS:**  
+- **On Linux/macOS:**
     Open a terminal and run:
     ```sh
     sudo systemctl start docker
     ```
     Or launch Docker Desktop from your applications menu if installed.
 
-- **On Windows:**  
+- **On Windows:**
     Start Docker Desktop from the Start menu.
 
 You can verify Docker is running by executing:
@@ -119,7 +118,7 @@ Next step: [Run AgenticSeek locally](#start-services-and-run)
 
 To run LLMs locally, you'll need sufficient hardware. At a minimum, a GPU capable of running Magistral, Qwen or Deepseek 14B is required. See the FAQ for detailed model/performance recommendations.
 
-**Setup your local provider**  
+**Setup your local provider**
 
 Start your local provider (for example with ollama):
 
@@ -163,7 +162,7 @@ stealth_mode = True # Use undetected selenium to reduce browser detection
 
 **Warning**:
 
-- The `config.ini` file format does not support comments. 
+- The `config.ini` file format does not support comments.
 Do not copy and paste the example configuration directly, as comments will cause errors.  Instead, manually modify the `config.ini` file with your desired settings, excluding any comments.
 
 - Do *NOT* set provider_name to `openai` if using LM-studio for running LLMs. Set it to `lm-studio`.
@@ -178,7 +177,7 @@ Do not copy and paste the example configuration directly, as comments will cause
 | lm-studio  | Yes    | Run LLM locally with LM studio (set `provider_name` to `lm-studio`)|
 | openai    | Yes     |  Use openai compatible API (eg: llama.cpp server)  |
 
-Next step: [Start services and run AgenticSeek](#Start-services-and-Run)  
+Next step: [Start services and run AgenticSeek](#Start-services-and-Run)
 
 *See the [Troubleshooting](#troubleshooting) section if you are having issues.*
 *If your hardware can't run LLMs locally, see [Setup to run with an API](#setup-to-run-with-an-api).*
@@ -198,7 +197,7 @@ Refer to the [List of API Providers](#list-of-api-providers) below. Visit their 
 *   **Linux/macOS:**
     Open your terminal and use the `export` command. It's best to add this to your shell's profile file (e.g., `~/.bashrc`, `~/.zshrc`) for persistence.
     ```sh
-    export PROVIDER_API_KEY="your_api_key_here" 
+    export PROVIDER_API_KEY="your_api_key_here"
     # Replace PROVIDER_API_KEY with the specific variable name, e.g., OPENAI_API_KEY, GOOGLE_API_KEY
     ```
     Example for TogetherAI:
@@ -352,9 +351,9 @@ Instead, ask:
 
 ---
 
-## **Setup to run the LLM on your own server**  
+## **Setup to run the LLM on your own server**
 
-If you have a powerful computer or a server that you can use, but you want to use it from your laptop you have the options to run the LLM on a remote server using our custom llm server. 
+If you have a powerful computer or a server that you can use, but you want to use it from your laptop you have the options to run the LLM on a remote server using our custom llm server.
 
 On your "server" that will run the AI model, get the ip address
 
@@ -402,7 +401,7 @@ provider_server_address = http://x.x.x.x:3333
 ```
 
 
-Next step: [Start services and run AgenticSeek](#Start-services-and-Run)  
+Next step: [Start services and run AgenticSeek](#Start-services-and-Run)
 
 ---
 
@@ -615,6 +614,65 @@ And download the chromedriver version matching your OS.
 
 If this section is incomplete please raise an issue.
 
+## Ollama connection failed from Docker backend
+
+```
+An error occurred: Provider ollama failed:
+Ollama connection failed at http://host.docker.internal:11434. Check if the server is running.
+```
+
+The frontend shows `Error: Unable to get a response.` and the backend returns HTTP 500 on `/query`.
+
+*   **Cause:** When AgenticSeek runs in Docker, the backend reaches your host's Ollama via `host.docker.internal`. Only the **port** of `provider_server_address` is used in Docker mode; the host part is replaced by `DOCKER_INTERNAL_URL` from `.env`. So the failure is not a config typo — it's that Ollama on the host is only bound to `127.0.0.1:11434` and refuses connections coming in over the Docker bridge.
+*   **Do NOT** change `provider_server_address = 127.0.0.1:11434` in `config.ini` — the host portion is ignored inside the container.
+*   **Solution:** Bind Ollama to all interfaces by setting `OLLAMA_HOST=0.0.0.0:11434` on the host:
+
+    Manual `ollama serve`:
+    ```bash
+    OLLAMA_HOST=0.0.0.0:11434 ollama serve
+    ```
+
+    **Definitive solution:**
+
+    systemd (Linux):
+    ```bash
+    sudo systemctl edit ollama
+    ```
+    Add:
+    ```
+    [Service]
+    Environment="OLLAMA_HOST=0.0.0.0:11434"
+    ```
+    Then:
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl restart ollama
+    ```
+
+    macOS (Ollama.app):
+    ```bash
+    launchctl setenv OLLAMA_HOST "0.0.0.0:11434"
+    ```
+    Then quit and relaunch the Ollama app.
+
+*   Verify from inside the backend container:
+    ```bash
+    docker compose exec backend curl -sS http://host.docker.internal:11434/api/tags
+    ```
+    You should get a JSON list of models.
+
+*   **Linux-only caveat:** `host.docker.internal` only resolves inside the container if docker-compose maps it. Make sure the backend service in `docker-compose.yml` includes:
+    ```yaml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ```
+    On Docker Desktop (macOS / Windows) this works out of the box.
+
+*   **Firewall:** if `ufw` / `firewalld` is active, allow the Docker bridge to reach 11434:
+    ```bash
+    sudo ufw allow from 172.16.0.0/12 to any port 11434
+    ```
+
 ##  connection adapters Issues
 
 ```
@@ -643,7 +701,7 @@ The SEARXNG_BASE_URL should be depending on whenever you run in docker or on hos
 
 ## FAQ
 
-**Q: What hardware do I need?**  
+**Q: What hardware do I need?**
 
 | Model Size  | GPU  | Comment                                               |
 |-----------|--------|-----------------------------------------------------------|
@@ -652,11 +710,11 @@ The SEARXNG_BASE_URL should be depending on whenever you run in docker or on hos
 | 32B        | 24+ GB VRAM (e.g. RTX 4090) | 🚀 Success with most tasks, might still struggle with task planning |
 | 70B+        | 48+ GB Vram | 💪 Excellent. Recommended for advanced use cases. |
 
-**Q: I get an error what do I do?**  
+**Q: I get an error what do I do?**
 
 Ensure local is running (`ollama serve`), your `config.ini` matches your provider, and dependencies are installed. If none work feel free to raise an issue.
 
-**Q: Can it really run 100% locally?**  
+**Q: Can it really run 100% locally?**
 
 Yes with Ollama, lm-studio or server providers, all speech to text, LLM and text to speech model run locally. Non-local options (OpenAI or others API) are optional.
 
@@ -691,9 +749,9 @@ See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom t
 
 ## Maintainers:
 
- > [Fosowl](https://github.com/Fosowl) | Paris Time 
+ > [Fosowl](https://github.com/Fosowl) | Paris Time
 
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time 
+ > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time
 
 ## Special Thanks:
 

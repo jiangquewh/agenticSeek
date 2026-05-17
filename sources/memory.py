@@ -25,7 +25,7 @@ class Memory():
                  memory_compression: bool = True,
                  model_provider: str = "deepseek-r1:14b"):
         self.memory = [{'role': 'system', 'content': system_prompt}]
-        
+
         self.logger = Logger("memory.log")
         self.session_time = datetime.datetime.now()
         self.session_id = str(uuid.uuid4())
@@ -65,18 +65,18 @@ class Memory():
         context_size = 2 ** round(math.log2(context_size))
         self.logger.info(f"Estimated context size for {model_name}: {context_size} tokens.")
         return context_size
-    
+
     def download_model(self):
         """Download the model if not already downloaded."""
         animate_thinking("Loading memory compression model...", color="status")
         self.tokenizer = AutoTokenizer.from_pretrained("pszemraj/led-base-book-summary")
         self.model = AutoModelForSeq2SeqLM.from_pretrained("pszemraj/led-base-book-summary")
         self.logger.info("Memory compression system initialized.")
-    
+
     def get_filename(self) -> str:
         """Get the filename for the save file."""
         return f"memory_{self.session_time.strftime('%Y-%m-%d_%H-%M-%S')}.txt"
-    
+
     def save_memory(self, agent_type: str = "casual_agent") -> None:
         """Save the session memory to a file."""
         if not os.path.exists(self.conversation_folder):
@@ -91,7 +91,7 @@ class Memory():
         with open(path, 'w') as f:
             self.logger.info(f"Saved memory json at {path}")
             f.write(json_memory)
-    
+
     def find_last_session_path(self, path) -> str:
         """Find the last session path."""
         saved_sessions = []
@@ -104,7 +104,7 @@ class Memory():
             self.logger.info(f"Last session found at {saved_sessions[0][0]}")
             return saved_sessions[0][0]
         return None
-    
+
     def save_json_file(self, path: str, json_memory: dict) -> None:
         """Save a JSON file."""
         try:
@@ -113,7 +113,7 @@ class Memory():
                 self.logger.info(f"Saved memory json at {path}")
         except Exception as e:
             self.logger.warning(f"Error saving file {path}: {e}")
-    
+
     def load_json_file(self, path: str) -> dict:
         """Load a JSON file."""
         json_memory = {}
@@ -145,16 +145,16 @@ class Memory():
             pretty_print("Last session memory not found.", color="warning")
             return
         path = os.path.join(save_path, filename)
-        self.memory = self.load_json_file(path) 
+        self.memory = self.load_json_file(path)
         if self.memory[-1]['role'] == 'user':
             self.memory.pop()
         self.compress()
         pretty_print("Session recovered successfully", color="success")
-    
+
     def reset(self, memory: list = []) -> None:
         self.logger.info("Memory reset performed.")
         self.memory = memory
-    
+
     def push(self, role: str, content: str) -> int:
         """Push a message to the memory."""
         ideal_ctx = self.get_ideal_ctx(self.model_provider)
@@ -171,12 +171,12 @@ class Memory():
         else:
             self.memory.append({'role': role, 'content': content, 'time': time_str, 'model_used': self.model_provider})
         return curr_idx-1
-    
+
     def clear(self) -> None:
         """Clear all memory except system prompt"""
         self.logger.info("Memory clear performed.")
         self.memory = self.memory[:1]
-    
+
     def clear_section(self, start: int, end: int) -> None:
         """
         Clear a section of the memory. Ignore system message index.
@@ -188,7 +188,7 @@ class Memory():
         start = max(0, start) + 1
         end = min(end, len(self.memory)-1) + 2
         self.memory = self.memory[:start] + self.memory[end:]
-    
+
     def get(self) -> list:
         return self.memory
 
@@ -226,11 +226,11 @@ class Memory():
             early_stopping=True
         )
         summary = self.tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-        summary.replace('summary:', '')
+        summary = summary.replace('summary:', '')
         self.logger.info(f"Memory summarized from len {len(text)} to {len(summary)}.")
         self.logger.info(f"Summarized text:\n{summary}")
         return summary
-    
+
     #@timer_decorator
     def compress(self) -> str:
         """
@@ -244,14 +244,14 @@ class Memory():
                 continue
             if len(self.memory[i]['content']) > 1024:
                 self.memory[i]['content'] = self.summarize(self.memory[i]['content'])
-    
+
     def trim_text_to_max_ctx(self, text: str) -> str:
         """
         Truncate a text to fit within the maximum context size of the model.
         """
         ideal_ctx = self.get_ideal_ctx(self.model_provider)
         return text[:ideal_ctx] if ideal_ctx is not None else text
-    
+
     #@timer_decorator
     def compress_text_to_max_ctx(self, text) -> str:
         """
@@ -295,9 +295,8 @@ Use the -I flag to specify the directory containing helper_functions.h.
 Ensure the file exists in the specified location.
     """
     memory.push('assistant', sample_text)
-    
+
     print("\n---\nmemory before:", memory.get())
     memory.compress()
     print("\n---\nmemory after:", memory.get())
     #memory.save_memory()
-    

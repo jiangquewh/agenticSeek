@@ -32,14 +32,14 @@ def is_running_in_docker():
     # Method 1: Check for .dockerenv file
     if os.path.exists('/.dockerenv'):
         return True
-    
+
     # Method 2: Check cgroup
     try:
         with open('/proc/1/cgroup', 'r') as f:
             return 'docker' in f.read()
     except:
         pass
-    
+
     return False
 
 
@@ -69,7 +69,7 @@ def initialize_system():
     stealth_mode = config.getboolean('BROWSER', 'stealth_mode')
     personality_folder = "jarvis" if config.getboolean('MAIN', 'jarvis_personality') else "base"
     languages = config["MAIN"]["languages"].split(' ')
-    
+
     # Force headless mode in Docker containers
     headless = config.getboolean('BROWSER', 'headless_browser')
     if is_running_in_docker() and not headless:
@@ -78,16 +78,16 @@ def initialize_system():
         print("*** WARNING: Detected Docker environment - forcing headless_browser=True ***")
         print("*** INFO: To see the browser, run 'python cli.py' on your host machine ***")
         print("*" * 70 + "\n")
-        
+
         # Flush to ensure it's displayed immediately
         sys.stdout.flush()
-        
+
         # Also log to file
         logger.warning("Detected Docker environment - forcing headless_browser=True")
         logger.info("To see the browser, run 'python cli.py' on your host machine instead")
-        
+
         headless = True
-    
+
     provider = Provider(
         provider_name=config["MAIN"]["provider_name"],
         model=config["MAIN"]["provider_model"],
@@ -214,6 +214,7 @@ async def think_wrapper(interaction, query):
         return success
     except Exception as e:
         logger.error(f"Error in think_wrapper: {str(e)}")
+        pretty_print(f"An error occurred: {str(e)}", color="error")
         interaction.last_answer = f""
         interaction.last_reasoning = f"Error: {str(e)}"
         interaction.last_success = False
@@ -263,7 +264,7 @@ async def process_query(request: QueryRequest):
         query_resp.agent_name = interaction.current_agent.agent_name
         query_resp.success = str(interaction.last_success)
         query_resp.blocks = blocks_json
-        
+
         query_resp_dict = {
             "done": query_resp.done,
             "answer": query_resp.answer,
@@ -294,7 +295,7 @@ if __name__ == "__main__":
         print("[AgenticSeek] Starting in Docker container...")
     else:
         print("[AgenticSeek] Starting on host machine...")
-    
+
     envport = os.getenv("BACKEND_PORT")
     if envport:
         port = int(envport)

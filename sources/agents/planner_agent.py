@@ -35,7 +35,7 @@ class PlannerAgent(Agent):
                                 memory_compression=False,
                                 model_provider=provider.get_model_name())
         self.logger = Logger("planner_agent.log")
-    
+
     def get_task_names(self, text: str) -> List[str]:
         """
         Extracts task names from the given text.
@@ -106,7 +106,7 @@ class PlannerAgent(Agent):
             names = [task['task'] for task in tasks]
             return list(map(list, zip(names, tasks)))
         return list(map(list, zip(tasks_names, tasks)))
-    
+
     def make_prompt(self, task: str, agent_infos_dict: dict) -> str:
         """
         Generates a prompt for the agent based on the task and previous agents work information.
@@ -130,7 +130,7 @@ class PlannerAgent(Agent):
         """
         self.logger.info(f"Prompt for agent:\n{prompt}")
         return prompt
-    
+
     def show_plan(self, agents_tasks: List[dict], answer: str) -> None:
         """
         Displays the plan made by the agent.
@@ -180,7 +180,7 @@ class PlannerAgent(Agent):
             ok = True
         self.logger.info(f"Plan made:\n{answer}")
         return self.parse_agent_tasks(answer)
-    
+
     async def update_plan(self, goal: str, agents_tasks: List[dict], agents_work_result: dict, id: str, success: bool) -> dict:
         """
         Updates the plan with the results of the agents work.
@@ -202,7 +202,7 @@ class PlannerAgent(Agent):
         if id_int == len(agents_tasks):
             next_task = "No task follow, this was the last step. If it failed add a task to recover."
         else:
-            next_task = f"Next task is: {agents_tasks[int(id)][0]}."
+            next_task = f"Next task is: {agents_tasks[int(id)][0]}." if int(id) < len(agents_tasks) else "No next task."
         #if success:
         #    return agents_tasks # we only update the plan if last task failed, for now
         update_prompt = f"""
@@ -228,7 +228,7 @@ class PlannerAgent(Agent):
             return agents_tasks
         self.logger.info(f"Plan updated:\n{plan}")
         return plan
-    
+
     async def start_agent_process(self, task: dict, required_infos: dict | None) -> str:
         """
         Starts the agent process for a given task.
@@ -253,7 +253,7 @@ class PlannerAgent(Agent):
         self.logger.info(f"Agent {task['agent']} finished working on {task['task']}. Success: {success}")
         agent_answer += "\nAgent succeeded with task." if success else "\nAgent failed with task (Error detected)."
         return agent_answer, success
-    
+
     def get_work_result_agent(self, task_needs, agents_work_result):
         res = {k: agents_work_result[k] for k in task_needs if k in agents_work_result}
         self.logger.info(f"Next agent needs: {task_needs}.\n Match previous agent result: {res}")
@@ -288,7 +288,7 @@ class PlannerAgent(Agent):
             if speech_module: speech_module.speak(f"I will {task_name}. I assigned the {task['agent']} agent to the task.")
 
             if agents_work_result is not None:
-                required_infos = self.get_work_result_agent(task['need'], agents_work_result)
+                required_infos = self.get_work_result_agent(task.get('need', []), agents_work_result)
             try:
                 answer, success = await self.start_agent_process(task, required_infos)
             except Exception as e:

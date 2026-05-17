@@ -803,6 +803,7 @@ engines:
     shortcut: wd
     timeout: 3.0
     weight: 2
+    disabled: true
     # add "list" to the array to get results in the results list
     display_type: ["infobox"]
     tests: *tests_infobox
