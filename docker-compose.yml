@@ -75,7 +75,11 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - ${BACKEND_PORT:-7777}:${BACKEND_PORT:-7777}
+      # Publish on the host loopback only. The backend is unauthenticated and the
+      # agent runs shell commands on the host, so it must not be reachable from the
+      # network by default. To expose it intentionally, change this to
+      # "0.0.0.0:${BACKEND_PORT}:${BACKEND_PORT}" and put it behind auth/a firewall.
+      - 127.0.0.1:${BACKEND_PORT:-7777}:${BACKEND_PORT:-7777}
     volumes:
       - ./:/app
       - ${WORK_DIR:-.}:/opt/workspace
@@ -85,6 +89,11 @@ services:
       - REDIS_URL=${REDIS_BASE_URL:-redis://redis:6379/0}
       - WORK_DIR=/opt/workspace
       - BACKEND_PORT=${BACKEND_PORT}
+      # Bind 0.0.0.0 *inside* the container so the loopback-only published port
+      # (see the "ports" mapping above) can reach it. The host only exposes the
+      # port on 127.0.0.1, so it is not reachable from the network by default.
+      - BACKEND_HOST=0.0.0.0
+      - FRONTEND_ORIGINS=${FRONTEND_ORIGINS:-http://localhost:3000}
       - DOCKER_INTERNAL_URL=http://host.docker.internal
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
