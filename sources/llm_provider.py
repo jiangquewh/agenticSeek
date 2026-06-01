@@ -443,10 +443,9 @@ class Provider:
         Use MiniMax API to generate text via OpenAI-compatible interface.
 
         Supported models:
-        - MiniMax-M2.7: Latest flagship model with enhanced reasoning and coding
+        - MiniMax-M3: Latest flagship model with enhanced reasoning and coding (default)
+        - MiniMax-M2.7: Previous flagship, kept for compatibility
         - MiniMax-M2.7-highspeed: High-speed version of M2.7 for low-latency scenarios
-        - MiniMax-M2.5: Peak performance model (~60 tps), 204,800 context window
-        - MiniMax-M2.5-highspeed: Same performance, faster (~100 tps)
 
         Note: temperature must be in range (0.0, 1.0], default is 1.0
         """
