@@ -74,6 +74,7 @@ ANTHROPIC_API_KEY='optional'
 Update the `.env` file with your own values as needed:
 
 - **SEARXNG_BASE_URL**: Leave unchanged unless running on host with CLI mode.
+> **Note on `SEARXNG_PORT` vs `SEARXNG_BASE_URL`**: `SEARXNG_PORT` only changes the host port that Docker binds to (e.g., `8001`). The searxng container always listens on port `8080` internally. Therefore, when running fully in Docker, `SEARXNG_BASE_URL` should always remain `http://searxng:8080` (the internal Docker network address). Only change `SEARXNG_BASE_URL` if you are running CLI mode on the host.
 - **REDIS_BASE_URL**: Leave unchanged
 - **WORK_DIR**: Path to your working directory on your local machine. AgenticSeek will be able to read and interact with these files.
 - **OLLAMA_PORT**: Port number for the Ollama service.
@@ -698,6 +699,8 @@ The SEARXNG_BASE_URL should be depending on whenever you run in docker or on hos
 **Run on host**: `SEARXNG_BASE_URL="http://localhost:8080"`
 
 **Run fully in docker (web interface)**: `SEARXNG_BASE_URL="http://searxng:8080"`
+
+> **Note on port conflicts**: If port `8080` is already in use on your host, change `SEARXNG_PORT` (e.g., to `8001`) in your `.env`. Keep `SEARXNG_BASE_URL` as `http://searxng:8080` — the internal Docker port does not change.
 
 ## FAQ
 
