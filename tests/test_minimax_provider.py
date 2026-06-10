@@ -14,19 +14,19 @@ class TestMiniMaxProvider(unittest.TestCase):
     def test_minimax_provider_registered(self):
         """Test that minimax provider is registered in available_providers."""
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             self.assertIn("minimax", provider.available_providers)
 
     def test_minimax_in_unsafe_providers(self):
         """Test that minimax is in unsafe_providers list."""
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             self.assertIn("minimax", provider.unsafe_providers)
 
     def test_minimax_api_key_required(self):
         """Test that API key is fetched for minimax provider."""
         with patch.object(Provider, 'get_api_key', return_value='test-minimax-key') as mock_get_key:
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             mock_get_key.assert_called_with("minimax")
             self.assertEqual(provider.api_key, 'test-minimax-key')
 
@@ -34,7 +34,7 @@ class TestMiniMaxProvider(unittest.TestCase):
     @patch.dict(os.environ, {'MINIMAX_API_KEY': 'test-key'})
     def test_minimax_local_not_supported(self, mock_openai_class):
         """Test that minimax provider raises error when is_local=True."""
-        provider = Provider("minimax", "MiniMax-M2.5", is_local=True)
+        provider = Provider("minimax", "MiniMax-M3", is_local=True)
         provider.api_key = 'test-key'
         history = [{"role": "user", "content": "Hello"}]
         with self.assertRaises(Exception) as context:
@@ -52,7 +52,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.return_value = mock_response
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
             provider.minimax_fn(history)
 
@@ -75,7 +75,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.return_value = mock_response
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
             provider.minimax_fn(history)
 
@@ -95,7 +95,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.return_value = mock_response
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
             provider.minimax_fn(history)
 
@@ -113,7 +113,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.return_value = mock_response
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
             result = provider.minimax_fn(history)
 
@@ -128,7 +128,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.return_value = None
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
 
             with self.assertRaises(Exception) as context:
@@ -144,7 +144,7 @@ class TestMiniMaxProvider(unittest.TestCase):
         mock_client.chat.completions.create.side_effect = Exception("API rate limit exceeded")
 
         with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
             history = [{"role": "user", "content": "Hello"}]
 
             with self.assertRaises(Exception) as context:
@@ -154,6 +154,24 @@ class TestMiniMaxProvider(unittest.TestCase):
 
 class TestMiniMaxProviderModels(unittest.TestCase):
     """Test cases for MiniMax provider model configurations."""
+
+    @patch('sources.llm_provider.OpenAI')
+    @patch.dict(os.environ, {'MINIMAX_API_KEY': 'test-key'})
+    def test_minimax_m3_model(self, mock_openai_class):
+        """Test MiniMax-M3 model."""
+        mock_client = MagicMock()
+        mock_openai_class.return_value = mock_client
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock(message=MagicMock(content="Response"))]
+        mock_client.chat.completions.create.return_value = mock_response
+
+        with patch.object(Provider, 'get_api_key', return_value='test-key'):
+            provider = Provider("minimax", "MiniMax-M3", is_local=False)
+            history = [{"role": "user", "content": "Hello"}]
+            provider.minimax_fn(history)
+
+            call_kwargs = mock_client.chat.completions.create.call_args[1]
+            self.assertEqual(call_kwargs['model'], "MiniMax-M3")
 
     @patch('sources.llm_provider.OpenAI')
     @patch.dict(os.environ, {'MINIMAX_API_KEY': 'test-key'})
@@ -190,42 +208,6 @@ class TestMiniMaxProviderModels(unittest.TestCase):
 
             call_kwargs = mock_client.chat.completions.create.call_args[1]
             self.assertEqual(call_kwargs['model'], "MiniMax-M2.7-highspeed")
-
-    @patch('sources.llm_provider.OpenAI')
-    @patch.dict(os.environ, {'MINIMAX_API_KEY': 'test-key'})
-    def test_minimax_m25_model(self, mock_openai_class):
-        """Test MiniMax-M2.5 model."""
-        mock_client = MagicMock()
-        mock_openai_class.return_value = mock_client
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock(message=MagicMock(content="Response"))]
-        mock_client.chat.completions.create.return_value = mock_response
-
-        with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5", is_local=False)
-            history = [{"role": "user", "content": "Hello"}]
-            provider.minimax_fn(history)
-
-            call_kwargs = mock_client.chat.completions.create.call_args[1]
-            self.assertEqual(call_kwargs['model'], "MiniMax-M2.5")
-
-    @patch('sources.llm_provider.OpenAI')
-    @patch.dict(os.environ, {'MINIMAX_API_KEY': 'test-key'})
-    def test_minimax_m25_highspeed_model(self, mock_openai_class):
-        """Test MiniMax-M2.5-highspeed model."""
-        mock_client = MagicMock()
-        mock_openai_class.return_value = mock_client
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock(message=MagicMock(content="Response"))]
-        mock_client.chat.completions.create.return_value = mock_response
-
-        with patch.object(Provider, 'get_api_key', return_value='test-key'):
-            provider = Provider("minimax", "MiniMax-M2.5-highspeed", is_local=False)
-            history = [{"role": "user", "content": "Hello"}]
-            provider.minimax_fn(history)
-
-            call_kwargs = mock_client.chat.completions.create.call_args[1]
-            self.assertEqual(call_kwargs['model'], "MiniMax-M2.5-highspeed")
 
 
 if __name__ == '__main__':
