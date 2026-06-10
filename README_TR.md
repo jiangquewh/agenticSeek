@@ -74,6 +74,7 @@ ANTHROPIC_API_KEY='optional'
 `.env` dosyasını ihtiyaçlarınıza göre güncelleyin:
 
 - **SEARXNG_BASE_URL**: CLI modunda çalışmıyorsanız değiştirmeyin.
+> **`SEARXNG_PORT` vs `SEARXNG_BASE_URL` notu**: `SEARXNG_PORT` yalnızca Docker'ın bağlandığı ana makine portunu değiştirir (örneğin, `8001`). searxng konteyneri dahili olarak her zaman `8080` portunu dinler. Bu nedenle, tamamen Docker içinde çalıştırırken `SEARXNG_BASE_URL` her zaman `http://searxng:8080` (iç Docker ağı adresi) olarak kalmalıdır. Yalnızca ana makinede CLI modunda çalıştırıyorsanız `SEARXNG_BASE_URL` değiştirin.
 - **REDIS_BASE_URL**: Değiştirmeyin.
 - **WORK_DIR**: Yerel makinenizdeki çalışma dizininin yolu. AgenticSeek bu dosyaları okuyabilir ve onlarla etkileşim kurabilir.
 - **OLLAMA_PORT**: Ollama servisi için port numarası.
@@ -630,6 +631,8 @@ SEARXNG_BASE_URL, Docker'da mı yoksa ana makinede mi çalıştırdığınıza g
 **Ana makinede çalıştırma**: `SEARXNG_BASE_URL="http://localhost:8080"`
 
 **Tamamen Docker'da çalıştırma (web arayüzü)**: `SEARXNG_BASE_URL="http://searxng:8080"`
+
+> **Port çakışmaları hakkında not**: Ana makinede `8080` portu zaten kullanımdaysa, `.env` dosyanızda `SEARXNG_PORT` değerini değiştirin (örneğin, `8001`). `SEARXNG_BASE_URL` değerini `http://searxng:8080` olarak tutun — iç Docker portu değişmez.
 
 ## SSS
 
