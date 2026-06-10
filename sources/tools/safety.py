@@ -1,4 +1,5 @@
 import os
+import shlex
 import sys
 
 unsafe_commands_unix = [
@@ -75,16 +76,27 @@ def is_any_unsafe(cmds):
             return True
     return False
 
+def _tokenize(cmd):
+    try:
+        return shlex.split(cmd, posix=not sys.platform.startswith("win"))
+    except ValueError:
+        return cmd.split()
+
 def is_unsafe(cmd):
     """
     check if a bash command is unsafe.
     """
-    if sys.platform.startswith("win"):
-        if any(c in cmd for c in unsafe_commands_windows):
-            return True
-    else:
-        if any(c in cmd for c in unsafe_commands_unix):
-            return True
+    tokens = _tokenize(cmd)
+    bag = unsafe_commands_windows if sys.platform.startswith("win") else unsafe_commands_unix
+    for entry in bag:
+        parts = entry.split()
+        if len(parts) == 1:
+            if entry in tokens:
+                return True
+        else:
+            for i in range(len(tokens) - len(parts) + 1):
+                if tokens[i:i + len(parts)] == parts:
+                    return True
     return False
 
 if __name__ == "__main__":
