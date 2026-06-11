@@ -42,6 +42,18 @@ class TestIsUnsafeUnix(unittest.TestCase):
     def test_handles_unparseable_quotes(self):
         self.assertTrue(is_unsafe('rm "unclosed'))
 
+    def test_blocks_absolute_path_rm(self):
+        self.assertTrue(is_unsafe("/bin/rm -rf /tmp/foo"))
+
+    def test_blocks_relative_path_rm(self):
+        self.assertTrue(is_unsafe("./rm important"))
+
+    def test_blocks_absolute_path_git(self):
+        self.assertTrue(is_unsafe("sudo /usr/bin/git push"))
+
+    def test_blocks_absolute_path_dd(self):
+        self.assertTrue(is_unsafe("/usr/local/bin/dd if=/dev/zero of=/dev/sda"))
+
 
 if __name__ == "__main__":
     unittest.main()
