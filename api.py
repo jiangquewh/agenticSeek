@@ -53,9 +53,15 @@ logger = Logger("backend.log")
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
+
 api.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -301,4 +307,16 @@ if __name__ == "__main__":
         port = int(envport)
     else:
         port = 7777
-    uvicorn.run(api, host="0.0.0.0", port=port)
+    # Bind to loopback by default. The /query endpoint is unauthenticated and the
+    # coder agent executes shell commands on the host, so exposing it on a network
+    # interface is equivalent to handing out remote code execution. Set BACKEND_HOST
+    # explicitly (and put the service behind authentication / a firewall) to expose it.
+    host = os.getenv("BACKEND_HOST", "127.0.0.1")
+    if host not in ("127.0.0.1", "localhost", "::1"):
+        pretty_print(
+            f"SECURITY WARNING: backend bound to {host}. The API is unauthenticated and "
+            "can execute shell commands on this host. Only do this on a trusted network "
+            "and behind an authenticating reverse proxy or firewall.",
+            color="failure",
+        )
+    uvicorn.run(api, host=host, port=port)
