@@ -1,4 +1,5 @@
 import os
+import shlex
 import sys
 
 unsafe_commands_unix = [
@@ -75,15 +76,26 @@ def is_any_unsafe(cmds):
             return True
     return False
 
+def _tokenize(cmd):
+    try:
+        return shlex.split(cmd, posix=not sys.platform.startswith("win"))
+    except ValueError:
+        return cmd.split()
+
 def is_unsafe(cmd):
     """
     check if a bash command is unsafe.
+
+    Tokens are basename-normalized so '/bin/rm' and './rm' still
+    match the bare 'rm' entry. Multi-token entries (e.g. 'chkdsk /f')
+    match when all their parts appear among the tokens regardless of
+    order, so intervening flags don't bypass the check.
     """
-    if sys.platform.startswith("win"):
-        if any(c in cmd for c in unsafe_commands_windows):
-            return True
-    else:
-        if any(c in cmd for c in unsafe_commands_unix):
+    norm_tokens = {os.path.basename(t) for t in _tokenize(cmd)}
+    bag = unsafe_commands_windows if sys.platform.startswith("win") else unsafe_commands_unix
+    for entry in bag:
+        parts = {os.path.basename(p) for p in entry.split()}
+        if parts and parts.issubset(norm_tokens):
             return True
     return False
 
