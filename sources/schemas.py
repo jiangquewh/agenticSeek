@@ -8,7 +8,7 @@ class QueryRequest(BaseModel):
     tts_enabled: bool = True
 
     def __str__(self):
-        return f"Query: {self.query}, Language: {self.lang}, TTS: {self.tts_enabled}, STT: {self.stt_enabled}"
+        return f"Query: {self.query}, TTS: {self.tts_enabled}"
 
     def jsonify(self):
         return {

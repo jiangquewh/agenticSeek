@@ -193,9 +193,6 @@ class Interaction:
         for agent in self.agents:
             agent.memory.save_memory(agent.type)
 
-    def is_active(self) -> bool:
-        return self.is_active
-
     def read_stdin(self) -> str:
         """Read the input from the user."""
         buffer = ""
@@ -294,18 +291,6 @@ class Interaction:
         if self.last_answer == tmp:
             self.last_answer = None
         return True
-
-    def get_updated_process_answer(self) -> str:
-        """Get the answer from the last agent."""
-        if self.current_agent is None:
-            return None
-        return self.current_agent.get_last_answer()
-
-    def get_updated_block_answer(self) -> str:
-        """Get the answer from the last agent."""
-        if self.current_agent is None:
-            return None
-        return self.current_agent.get_last_block_answer()
 
     def speak_answer(self) -> None:
         """Speak the answer to the user in a non-blocking thread."""
