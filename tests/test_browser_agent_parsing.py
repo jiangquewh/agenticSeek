@@ -1,7 +1,7 @@
 import unittest
 import os
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Add project root to Python path
 
@@ -202,6 +202,27 @@ Link: https://partial.com"""
         ]
         unvisited = self.agent.select_unvisited(results)
         self.assertEqual(len(unvisited), 2)
+
+
+class TestBrowserAgentFormFilling(unittest.IsolatedAsyncioTestCase):
+    """Regression: after filling a form the agent rebuilt the follow-up prompt
+    but then sent the stale navigation prompt to the LLM, discarding it."""
+
+    async def test_form_update_prompt_is_sent_to_llm(self):
+        agent = BrowserAgent.__new__(BrowserAgent)
+        agent.browser = MagicMock()
+        agent.browser.fill_form.return_value = True
+        agent.status_message = ""
+        agent.get_page_text = MagicMock(return_value="Welcome, you are logged in.")
+        agent.llm_decide = AsyncMock(return_value=("FORM_FILLED", "reasoning"))
+
+        answer, reasoning = await agent.handle_form_filling(["[username](bob)"], "log me in")
+
+        self.assertEqual(answer, "FORM_FILLED")
+        sent_prompt = agent.llm_decide.await_args.args[0]
+        self.assertIn("You just filled a form", sent_prompt)
+        self.assertIn("Welcome, you are logged in.", sent_prompt)
+        self.assertIn("log me in", sent_prompt)
 
 
 if __name__ == "__main__":
