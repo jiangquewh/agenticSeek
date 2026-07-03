@@ -26,9 +26,13 @@ class FileAgent(Agent):
     
     async def process(self, prompt, speech_module) -> str:
         exec_success = False
+        answer = ""
+        reasoning = ""
+        attempt = 0
+        max_attempts = 5
         prompt += f"\nYou must work in directory: {self.work_dir}"
         self.memory.push('user', prompt)
-        while exec_success is False and not self.stop:
+        while exec_success is False and attempt < max_attempts and not self.stop:
             await self.wait_message(speech_module)
             animate_thinking("Thinking...", color="status")
             answer, reasoning = await self.llm_request()
@@ -36,6 +40,7 @@ class FileAgent(Agent):
             exec_success, _ = self.execute_modules(answer)
             answer = self.remove_blocks(answer)
             self.last_answer = answer
+            attempt += 1
         self.status_message = "Ready"
         return answer, reasoning
 

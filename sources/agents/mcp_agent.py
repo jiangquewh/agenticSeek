@@ -54,19 +54,24 @@ class McpAgent(Agent):
     
     async def process(self, prompt, speech_module) -> str:
         if self.enabled == False:
-            return "MCP Agent is disabled."
+            return "MCP Agent is disabled.", ""
         prompt = self.expand_prompt(prompt)
         self.memory.push('user', prompt)
-        working = True
-        while working == True:
+        answer = ""
+        reasoning = ""
+        attempt = 0
+        max_attempts = 5
+        while attempt < max_attempts and not self.stop:
             animate_thinking("Thinking...", color="status")
+            blocks_before = len(self.blocks_result)
             answer, reasoning = await self.llm_request()
             exec_success, _ = self.execute_modules(answer)
             answer = self.remove_blocks(answer)
             self.last_answer = answer
             self.status_message = "Ready"
-            if len(self.blocks_result) == 0:
-                working = False
+            if len(self.blocks_result) == blocks_before:
+                break
+            attempt += 1
         return answer, reasoning
 
 if __name__ == "__main__":
