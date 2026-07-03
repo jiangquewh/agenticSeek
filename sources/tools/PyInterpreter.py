@@ -2,7 +2,7 @@
 import sys
 import os
 import re
-from io import StringIO
+import subprocess
 
 if __name__ == "__main__": # if running as a script for individual testing
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -19,42 +19,35 @@ class PyInterpreter(Tools):
         self.name = "Python Interpreter"
         self.description = "This tool allows the agent to execute python code."
 
-    def execute(self, codes:str, safety = False) -> str:
+    def execute(self, codes:str, safety = False, timeout=300) -> str:
         """
-        Execute python code.
+        Execute python code in an isolated subprocess.
+        The code runs in the work directory and is killed after `timeout`
+        seconds, so runaway code cannot freeze the backend.
         """
-        output = ""
         if safety and input("Execute code ? y/n") != "y":
             return "Code rejected by user."
-        stdout_buffer = StringIO()
-        sys.stdout = stdout_buffer
-        global_vars = {
-            '__builtins__': __builtins__,
-            'os': os,
-            'sys': sys,
-            '__name__': '__main__'
-        }
         code = '\n\n'.join(codes)
         self.logger.info(f"Executing code:\n{code}")
         try:
-            try:
-                buffer = exec(code, global_vars)
-                self.logger.info(f"Code executed successfully.\noutput:{buffer}")
-                print(buffer)
-                if buffer is not None:
-                    output = buffer + '\n'
-            except SystemExit:
-                self.logger.info("SystemExit caught, code execution stopped.")
-                output = stdout_buffer.getvalue()
-                return f"[SystemExit caught] Output before exit:\n{output}"
-            except Exception as e:
-                self.logger.error(f"Code execution failed: {str(e)}")
-                return "code execution failed:" + str(e)
-            output = stdout_buffer.getvalue()
-        finally:
-            self.logger.info("Code execution finished.")
-            sys.stdout = sys.__stdout__
-        return output
+            result = subprocess.run(
+                [sys.executable, "-c", code],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+        except subprocess.TimeoutExpired:
+            self.logger.error(f"Code execution timed out after {timeout} seconds.")
+            return f"code execution failed: timed out after {timeout} seconds."
+        except Exception as e:
+            self.logger.error(f"Code execution failed: {str(e)}")
+            return "code execution failed:" + str(e)
+        if result.returncode != 0:
+            self.logger.error(f"Code execution failed:\n{result.stderr}")
+            return "code execution failed:" + (result.stderr or result.stdout)
+        self.logger.info("Code execution finished.")
+        return result.stdout
 
     def interpreter_feedback(self, output:str) -> str:
         """
