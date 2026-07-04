@@ -367,25 +367,25 @@ engines:
     timeout: 6
     disabled: true
 
-  - name: adobe stock video
-    engine: adobe_stock
-    shortcut: asv
-    network: adobe stock
-    categories: ["videos"]
-    adobe_order: relevance
-    adobe_content_types: ["video"]
-    timeout: 6
-    disabled: true
-
-  - name: adobe stock audio
-    engine: adobe_stock
-    shortcut: asa
-    network: adobe stock
-    categories: ["music"]
-    adobe_order: relevance
-    adobe_content_types: ["audio"]
-    timeout: 6
-    disabled: true
+#  - name: adobe stock video
+#    engine: adobe_stock
+#    shortcut: asv
+#    network: adobe stock
+#    categories: ["videos"]
+#    adobe_order: relevance
+#    adobe_content_types: ["video"]
+#    timeout: 6
+#    disabled: true
+#
+#  - name: adobe stock audio
+#    engine: adobe_stock
+#    shortcut: asa
+#    network: adobe stock
+#    categories: ["music"]
+#    adobe_order: relevance
+#    adobe_content_types: ["audio"]
+#    timeout: 6
+#    disabled: true
 
   - name: alexandria
     engine: json_engine
@@ -1619,34 +1619,34 @@ engines:
     shortcut: pypi
     engine: pypi
 
-  - name: qwant
-    qwant_categ: web
-    engine: qwant
-    shortcut: qw
-    categories: [general, web]
-    additional_tests:
-      rosebud: *test_rosebud
+#  - name: qwant
+#    qwant_categ: web
+#    engine: qwant
+#    shortcut: qw
+#    categories: [general, web]
+#    additional_tests:
+#      rosebud: *test_rosebud
 
-  - name: qwant news
-    qwant_categ: news
-    engine: qwant
-    shortcut: qwn
-    categories: news
-    network: qwant
-
-  - name: qwant images
-    qwant_categ: images
-    engine: qwant
-    shortcut: qwi
-    categories: [images, web]
-    network: qwant
-
-  - name: qwant videos
-    qwant_categ: videos
-    engine: qwant
-    shortcut: qwv
-    categories: [videos, web]
-    network: qwant
+#  - name: qwant news
+#    qwant_categ: news
+#    engine: qwant
+#    shortcut: qwn
+#    categories: news
+#    network: qwant
+#
+#  - name: qwant images
+#    qwant_categ: images
+#    engine: qwant
+#    shortcut: qwi
+#    categories: [images, web]
+#    network: qwant
+#
+#  - name: qwant videos
+#    qwant_categ: videos
+#    engine: qwant
+#    shortcut: qwv
+#    categories: [videos, web]
+#    network: qwant
 
   # - name: library
   #   engine: recoll
@@ -1743,15 +1743,15 @@ engines:
     shortcut: sogou
     disabled: true
 
-  - name: sogou images
-    engine: sogou_images
-    shortcut: sogoui
-    disabled: true
-
-  - name: sogou videos
-    engine: sogou_videos
-    shortcut: sogouv
-    disabled: true
+#  - name: sogou images
+#    engine: sogou_images
+#    shortcut: sogoui
+#    disabled: true
+#
+#  - name: sogou videos
+#    engine: sogou_videos
+#    shortcut: sogouv
+#    disabled: true
 
   - name: sogou wechat
     engine: sogou_wechat
