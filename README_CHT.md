@@ -57,7 +57,8 @@ mv .env.example .env
 ### 2. 修改 .env 文件內容
 
 ```sh
-SEARXNG_BASE_URL="http://searxng:8080" # 如果在主機上運行 CLI 模式，使用 http://127.0.0.1:8080
+SEARXNG_BASE_URL="http://searxng:8080" # 此值取決於後端在哪裡運行 — 請參閱下方的 SEARXNG 說明
+SEARXNG_PORT=8080
 REDIS_BASE_URL="redis://redis:6379/0"
 WORK_DIR="/Users/mlg/Documents/workspace_for_ai"
 OLLAMA_PORT="11434"
@@ -73,8 +74,15 @@ ANTHROPIC_API_KEY='optional'
 
 根據需要更新 `.env` 文件：
 
-- **SEARXNG_BASE_URL**: 除非在主機上運行 CLI 模式，否則保持不變。
-> **`SEARXNG_PORT` 與 `SEARXNG_BASE_URL` 的說明**：`SEARXNG_PORT` 只更改 Docker 綁定的主機埠號（例如 `8001`）。searxng 容器在內部始終監聽埠號 `8080`。因此，在完全於 Docker 中運行時，`SEARXNG_BASE_URL` 應始終保持為 `http://searxng:8080`（內部 Docker 網絡地址）。僅在主機上運行 CLI 模式時才更改 `SEARXNG_BASE_URL`。
+- **SEARXNG_PORT**: Docker 對外發佈 SearXNG 所用的**主機**埠號。如果您機器上的埠號 `8080` 已被佔用，請設置為其他埠號（例如 `8001`）。在 Docker 內部，容器始終監聽 `8080` — 這個變數永遠不會改變這一點。
+- **SEARXNG_BASE_URL**: **後端**用來連接 SearXNG 的地址。它在 `.env` 中設置（而不是在 `config.ini` 中），且只取決於後端在哪裡運行：
+
+| AgenticSeek 的運行方式 | `SEARXNG_BASE_URL` |
+|---|---|
+| Web 界面 — 後端在 Docker 中運行（`./start_services.sh full`） | `http://searxng:8080` — 始終是埠號 `8080`，即使您更改了 `SEARXNG_PORT` |
+| CLI 模式 — 後端在主機上運行（`uv run cli.py`） | `http://localhost:8080` — 如果您更改了 `SEARXNG_PORT`，請改用該埠號（例如 `http://localhost:8001`）。`http://searxng:...` 在這裡**不**適用：該主機名只存在於 Docker 內部 |
+
+> 若要在瀏覽器中檢查 SearXNG，請始終使用主機埠號：`http://localhost:<SEARXNG_PORT>`。更改 `.env` 後，請重啟後端 — 該文件只在進程啟動時讀取。
 - **REDIS_BASE_URL**: 保持不變 
 - **WORK_DIR**: 本地工作目錄路徑。AgenticSeek 可讀取和操作這些文件。
 - **OLLAMA_PORT**: Ollama 服務端口號。
@@ -277,11 +285,13 @@ start start_services.cmd full # Windows
 ./install.bat # windows
 ```
 
-然後您必須將 `config.ini` 中的 SEARXNG_BASE_URL 更改為：
+然後您必須將 `.env` 文件（**不是** `config.ini`）中的 SEARXNG_BASE_URL 更改為主機映射的地址，因為在 CLI 模式下後端在您的機器上運行，位於 Docker 之外：
 
 ```sh
 SEARXNG_BASE_URL="http://localhost:8080"
 ```
+
+> 如果您在 `.env` 中更改了 `SEARXNG_PORT`，這裡請改用該埠號（例如 `http://localhost:8001`）。編輯 `.env` 後請重啟 `cli.py` — 該值在啟動時讀取。
 
 啟動所需服務。這將啟動 docker-compose.yml 中的一些服務，包括：
     - searxng
@@ -618,13 +628,18 @@ ValueError: SearxNG base URL must be provided either as an argument or via the S
 
 如果您使用錯誤的 searxng 基本 URL 運行 CLI 模式，可能會出現這種情況。
 
-SEARXNG_BASE_URL 應根據您是在 Docker 中運行還是在主機上運行而有所不同：
+`SEARXNG_BASE_URL` 在 `.env` 中設置，且只取決於**後端在哪裡運行**：
 
-**在主機上運行**：`SEARXNG_BASE_URL="http://localhost:8080"`
+**後端在主機上運行（CLI 模式）**：`SEARXNG_BASE_URL="http://localhost:8080"` — 如果您更改了 `SEARXNG_PORT`，請改用該埠號（例如 `http://localhost:8001`）。`http://searxng:...` 在這裡**不**適用：該主機名只在 Docker 內部解析。
 
-**完全在 Docker 中運行（Web 界面）**：`SEARXNG_BASE_URL="http://searxng:8080"`
+**後端在 Docker 中運行（Web 界面，`full` 配置）**：`SEARXNG_BASE_URL="http://searxng:8080"` — 始終是埠號 `8080`，即使您更改了 `SEARXNG_PORT`；該變數只重新映射主機端的埠號。
 
-> **端口衝突說明**：如果您主機上的埠號 `8080` 已被佔用，請在 `.env` 中更改 `SEARXNG_PORT`（例如改為 `8001`）。`SEARXNG_BASE_URL` 請保持為 `http://searxng:8080` — 內部 Docker 埠號不會改變。
+> **端口衝突說明**：如果您主機上的埠號 `8080` 已被佔用，請在 `.env` 中設置 `SEARXNG_PORT`（例如 `8001`），然後：
+> - Web 界面（後端在 Docker 中）：保持 `SEARXNG_BASE_URL="http://searxng:8080"` — Docker 內部埠號不會改變。
+> - CLI 模式（後端在主機上）：設置 `SEARXNG_BASE_URL="http://localhost:8001"` — 它必須與 `SEARXNG_PORT` 一致。
+> - 瀏覽器檢查：打開 `http://localhost:<SEARXNG_PORT>` — 在舊埠號 `8080` 上回應的是其他應用程序，而不是 AgenticSeek 的 SearXNG。
+>
+> 更改 `.env` 後，請重啟後端（`api.py` 或 `cli.py`）— 該文件只在進程啟動時讀取。
 
 ## FAQ
 

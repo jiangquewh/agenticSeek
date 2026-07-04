@@ -13,21 +13,48 @@ class PyInterpreter(Tools):
     """
     This class is a tool to allow agent for python code execution.
     """
+
+    INTERACTIVE_PATTERNS = [
+        (re.compile(r"^\s*(?:import|from)\s+[^\n]*\bcurses\b", re.MULTILINE), "curses"),
+        (re.compile(r"(?<![\w.])(?<!def\s)input\s*\("), "input()"),
+    ]
+
     def __init__(self):
         super().__init__()
         self.tag = "python"
         self.name = "Python Interpreter"
         self.description = "This tool allows the agent to execute python code."
 
+    def refuse_interactive_code(self, code: str) -> str:
+        """
+        Return a refusal message if `code` needs a terminal, empty string otherwise.
+        Code runs headless with stdio attached to pipes, so curses raises
+        'cbreak() returned ERR' and input() hits EOF or hangs on every retry;
+        refusing upfront gives the agent feedback it can actually act on.
+        """
+        for pattern, feature in self.INTERACTIVE_PATTERNS:
+            if pattern.search(code):
+                return (f"code execution failed: {feature} requires an interactive terminal, "
+                        "but code runs headless in a sandbox with no terminal attached. "
+                        f"Rewrite the code without {feature}: take values from variables in "
+                        "the code and print results to stdout.")
+        return ""
+
     def execute(self, codes:str, safety = False, timeout=300) -> str:
         """
         Execute python code in an isolated subprocess.
         The code runs in the work directory and is killed after `timeout`
         seconds, so runaway code cannot freeze the backend.
+        Interactive code (curses, input()) is refused upfront: the sandbox
+        has no terminal, so it can never work.
         """
         if safety and input("Execute code ? y/n") != "y":
             return "Code rejected by user."
         code = '\n\n'.join(codes)
+        refusal = self.refuse_interactive_code(code)
+        if refusal:
+            self.logger.warning(f"Refused interactive code:\n{code}")
+            return refusal
         self.logger.info(f"Executing code:\n{code}")
         try:
             result = subprocess.run(

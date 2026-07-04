@@ -57,7 +57,8 @@ mv .env.example .env
 ### 2. Modificar el contenido del archivo .env
 
 ```sh
-SEARXNG_BASE_URL="http://searxng:8080" # Si ejecutas en modo CLI en el host, usa http://127.0.0.1:8080
+SEARXNG_BASE_URL="http://searxng:8080" # el valor depende de dónde se ejecute el backend — consulta la nota sobre SEARXNG más abajo
+SEARXNG_PORT=8080
 REDIS_BASE_URL="redis://redis:6379/0"
 WORK_DIR="/Users/mlg/Documents/workspace_for_ai"
 OLLAMA_PORT="11434"
@@ -73,8 +74,15 @@ ANTHROPIC_API_KEY='optional'
 
 Actualiza el archivo `.env` según sea necesario:
 
-- **SEARXNG_BASE_URL**: Mantener sin cambios a menos que ejecutes en modo CLI en el host.
-> **Nota sobre `SEARXNG_PORT` vs `SEARXNG_BASE_URL`**: `SEARXNG_PORT` solo cambia el puerto del host al que Docker se enlaza (por ejemplo, `8001`). El contenedor de searxng siempre escucha internamente en el puerto `8080`. Por lo tanto, al ejecutarse completamente en Docker, `SEARXNG_BASE_URL` siempre debe permanecer como `http://searxng:8080` (la dirección de red interna de Docker). Solo cambie `SEARXNG_BASE_URL` si ejecuta el modo CLI en el host.
+- **SEARXNG_PORT**: El puerto del **host** en el que Docker publica SearXNG. Si el puerto `8080` ya está ocupado en tu máquina, establece otro (por ejemplo, `8001`). Dentro de Docker el contenedor siempre escucha en `8080` — esta variable nunca cambia eso.
+- **SEARXNG_BASE_URL**: La dirección que el **backend** usa para conectarse a SearXNG. Se configura aquí, en `.env` (no en `config.ini`), y depende únicamente de dónde se ejecute el backend:
+
+| Cómo ejecutas AgenticSeek | `SEARXNG_BASE_URL` |
+|---|---|
+| Interfaz web — backend en Docker (`./start_services.sh full`) | `http://searxng:8080` — siempre el puerto `8080`, incluso si cambiaste `SEARXNG_PORT` |
+| Modo CLI — backend en el host (`uv run cli.py`) | `http://localhost:8080` — si cambiaste `SEARXNG_PORT`, usa ese puerto en su lugar (por ejemplo, `http://localhost:8001`). `http://searxng:...` **no** funciona aquí: ese nombre de host solo existe dentro de Docker |
+
+> Para comprobar SearXNG en un navegador, usa siempre el puerto del host: `http://localhost:<SEARXNG_PORT>`. Después de cambiar `.env`, reinicia el backend — el archivo solo se lee al iniciar el proceso.
 - **REDIS_BASE_URL**: Mantener sin cambios 
 - **WORK_DIR**: Ruta al directorio de trabajo local. AgenticSeek podrá leer e interactuar con estos archivos.
 - **OLLAMA_PORT**: Número de puerto para el servicio Ollama.
@@ -276,11 +284,13 @@ Para ejecutar con la interfaz CLI, debes instalar los paquetes en el host:
 ./install.bat # windows
 ```
 
-Luego debes cambiar SEARXNG_BASE_URL en `config.ini` a:
+Luego debes cambiar SEARXNG_BASE_URL en tu archivo `.env` (**no** en `config.ini`) a la dirección mapeada al host, porque en modo CLI el backend se ejecuta en tu máquina, fuera de Docker:
 
 ```sh
 SEARXNG_BASE_URL="http://localhost:8080"
 ```
+
+> Si cambiaste `SEARXNG_PORT` en `.env`, usa ese puerto aquí en su lugar (por ejemplo, `http://localhost:8001`). Reinicia `cli.py` después de editar `.env` — el valor se lee al arrancar.
 
 Inicia los servicios necesarios. Esto iniciará algunos servicios del docker-compose.yml, incluyendo:
     - searxng
@@ -617,13 +627,18 @@ ValueError: SearxNG base URL must be provided either as an argument or via the S
 
 Esto puede ocurrir si ejecutas el modo CLI con la URL base de searxng incorrecta.
 
-SEARXNG_BASE_URL debe diferir según si ejecutas en Docker o en el host:
+`SEARXNG_BASE_URL` se configura en `.env` y depende únicamente de **dónde se ejecute el backend**:
 
-**Ejecutando en el host:** `SEARXNG_BASE_URL="http://localhost:8080"`
+**Backend en el host (modo CLI)**: `SEARXNG_BASE_URL="http://localhost:8080"` — si cambiaste `SEARXNG_PORT`, usa ese puerto en su lugar (por ejemplo, `http://localhost:8001`). `http://searxng:...` **no** funciona aquí: ese nombre de host solo se resuelve dentro de Docker.
 
-**Ejecutando completamente en Docker (interfaz web):** `SEARXNG_BASE_URL="http://searxng:8080"`
+**Backend en Docker (interfaz web, perfil `full`)**: `SEARXNG_BASE_URL="http://searxng:8080"` — siempre el puerto `8080`, incluso si cambiaste `SEARXNG_PORT`; esa variable solo remapea el lado del host.
 
-> **Nota sobre conflictos de puertos**: Si el puerto `8080` ya está en uso en su host, cambie `SEARXNG_PORT` (por ejemplo, a `8001`) en su `.env`. Mantenga `SEARXNG_BASE_URL` como `http://searxng:8080` — el puerto interno de Docker no cambia.
+> **Nota sobre conflictos de puertos**: Si el puerto `8080` ya está en uso en tu host, establece `SEARXNG_PORT` (por ejemplo, `8001`) en `.env`, y luego:
+> - Interfaz web (backend en Docker): mantén `SEARXNG_BASE_URL="http://searxng:8080"` — el puerto interno de Docker no cambia.
+> - Modo CLI (backend en el host): establece `SEARXNG_BASE_URL="http://localhost:8001"` — debe coincidir con `SEARXNG_PORT`.
+> - Comprobaciones en el navegador: abre `http://localhost:<SEARXNG_PORT>` — lo que responda en el antiguo puerto `8080` es otra aplicación, no el SearXNG de AgenticSeek.
+>
+> Después de cambiar `.env`, reinicia el backend (`api.py` o `cli.py`) — el archivo solo se lee al iniciar el proceso.
 
 ## FAQ
 
