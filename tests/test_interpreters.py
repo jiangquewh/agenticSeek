@@ -110,6 +110,41 @@ class TestPyInterpreter(InterpreterTestCase):
         py = PyInterpreter()
         self.assertFalse(py.execution_failure_check("hello\n"))
 
+    def test_curses_import_is_refused_with_actionable_message(self):
+        """Regression: curses code died with a cryptic 'cbreak() returned ERR'
+        traceback the agent could not act on, so it retried forever."""
+        py = PyInterpreter()
+        output = py.execute(['import curses\n\ncurses.wrapper(lambda s: None)'], timeout=5)
+        self.assertIn("terminal", output)
+        self.assertIn("curses", output)
+        self.assertNotIn("Traceback", output)
+        self.assertTrue(py.execution_failure_check(output))
+
+    def test_from_curses_import_is_refused(self):
+        py = PyInterpreter()
+        output = py.execute(['from curses import wrapper'], timeout=5)
+        self.assertIn("curses", output)
+        self.assertNotIn("Traceback", output)
+
+    def test_input_call_is_refused_with_actionable_message(self):
+        """Regression: input() either hit EOFError or hung until the timeout,
+        since the sandbox has no terminal to read from."""
+        py = PyInterpreter()
+        output = py.execute(['name = input("your name: ")\nprint(name)'], timeout=5)
+        self.assertIn("terminal", output)
+        self.assertIn("input()", output)
+        self.assertTrue(py.execution_failure_check(output))
+
+    def test_input_method_call_is_not_refused(self):
+        """A .input() method or my_input() helper is not the builtin input()."""
+        py = PyInterpreter()
+        code = ('class Reader:\n'
+                '    def input(self, value):\n'
+                '        return value\n'
+                'print(Reader().input("ok"))')
+        output = py.execute([code])
+        self.assertEqual(output, "ok\n")
+
 
 if __name__ == "__main__":
     unittest.main()
