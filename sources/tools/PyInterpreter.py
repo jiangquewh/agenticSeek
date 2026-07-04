@@ -2,7 +2,7 @@
 import sys
 import os
 import re
-from io import StringIO
+import subprocess
 
 if __name__ == "__main__": # if running as a script for individual testing
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -13,48 +13,68 @@ class PyInterpreter(Tools):
     """
     This class is a tool to allow agent for python code execution.
     """
+
+    INTERACTIVE_PATTERNS = [
+        (re.compile(r"^\s*(?:import|from)\s+[^\n]*\bcurses\b", re.MULTILINE), "curses"),
+        (re.compile(r"(?<![\w.])(?<!def\s)input\s*\("), "input()"),
+    ]
+
     def __init__(self):
         super().__init__()
         self.tag = "python"
         self.name = "Python Interpreter"
         self.description = "This tool allows the agent to execute python code."
 
-    def execute(self, codes:str, safety = False) -> str:
+    def refuse_interactive_code(self, code: str) -> str:
         """
-        Execute python code.
+        Return a refusal message if `code` needs a terminal, empty string otherwise.
+        Code runs headless with stdio attached to pipes, so curses raises
+        'cbreak() returned ERR' and input() hits EOF or hangs on every retry;
+        refusing upfront gives the agent feedback it can actually act on.
         """
-        output = ""
+        for pattern, feature in self.INTERACTIVE_PATTERNS:
+            if pattern.search(code):
+                return (f"code execution failed: {feature} requires an interactive terminal, "
+                        "but code runs headless in a sandbox with no terminal attached. "
+                        f"Rewrite the code without {feature}: take values from variables in "
+                        "the code and print results to stdout.")
+        return ""
+
+    def execute(self, codes:str, safety = False, timeout=300) -> str:
+        """
+        Execute python code in an isolated subprocess.
+        The code runs in the work directory and is killed after `timeout`
+        seconds, so runaway code cannot freeze the backend.
+        Interactive code (curses, input()) is refused upfront: the sandbox
+        has no terminal, so it can never work.
+        """
         if safety and input("Execute code ? y/n") != "y":
             return "Code rejected by user."
-        stdout_buffer = StringIO()
-        sys.stdout = stdout_buffer
-        global_vars = {
-            '__builtins__': __builtins__,
-            'os': os,
-            'sys': sys,
-            '__name__': '__main__'
-        }
         code = '\n\n'.join(codes)
+        refusal = self.refuse_interactive_code(code)
+        if refusal:
+            self.logger.warning(f"Refused interactive code:\n{code}")
+            return refusal
         self.logger.info(f"Executing code:\n{code}")
         try:
-            try:
-                buffer = exec(code, global_vars)
-                self.logger.info(f"Code executed successfully.\noutput:{buffer}")
-                print(buffer)
-                if buffer is not None:
-                    output = buffer + '\n'
-            except SystemExit:
-                self.logger.info("SystemExit caught, code execution stopped.")
-                output = stdout_buffer.getvalue()
-                return f"[SystemExit caught] Output before exit:\n{output}"
-            except Exception as e:
-                self.logger.error(f"Code execution failed: {str(e)}")
-                return "code execution failed:" + str(e)
-            output = stdout_buffer.getvalue()
-        finally:
-            self.logger.info("Code execution finished.")
-            sys.stdout = sys.__stdout__
-        return output
+            result = subprocess.run(
+                [sys.executable, "-c", code],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+        except subprocess.TimeoutExpired:
+            self.logger.error(f"Code execution timed out after {timeout} seconds.")
+            return f"code execution failed: timed out after {timeout} seconds."
+        except Exception as e:
+            self.logger.error(f"Code execution failed: {str(e)}")
+            return "code execution failed:" + str(e)
+        if result.returncode != 0:
+            self.logger.error(f"Code execution failed:\n{result.stderr}")
+            return "code execution failed:" + (result.stderr or result.stdout)
+        self.logger.info("Code execution finished.")
+        return result.stdout
 
     def interpreter_feedback(self, output:str) -> str:
         """

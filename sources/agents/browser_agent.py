@@ -310,6 +310,22 @@ class BrowserAgent(Agent):
             """
         return prompt
     
+    async def handle_form_filling(self, extracted_form: List[str], user_prompt: str) -> Tuple[str, str]:
+        """
+        Fill the form written by the LLM, then ask it to assess the resulting page.
+        Args:
+            extracted_form: The [input_name](value) pairs extracted from the LLM answer.
+            user_prompt: The original user request.
+        Returns:
+            Tuple[str, str]: The LLM answer and reasoning about the post-submission page.
+        """
+        self.status_message = "Filling web form..."
+        pretty_print(f"Filling inputs form...", color="status")
+        fill_success = self.browser.fill_form(extracted_form)
+        page_text = self.get_page_text(limit_to_model_ctx=True)
+        update_prompt = self.handle_update_prompt(user_prompt, page_text, fill_success)
+        return await self.llm_decide(update_prompt)
+
     def show_search_results(self, search_result: List[str]):
         pretty_print("\nSearch results:", color="output")
         for res in search_result:
@@ -369,12 +385,7 @@ class BrowserAgent(Agent):
 
             extracted_form = self.extract_form(answer)
             if len(extracted_form) > 0:
-                self.status_message = "Filling web form..."
-                pretty_print(f"Filling inputs form...", color="status")
-                fill_success = self.browser.fill_form(extracted_form)
-                page_text = self.get_page_text(limit_to_model_ctx=True)
-                answer = self.handle_update_prompt(user_prompt, page_text, fill_success)
-                answer, reasoning = await self.llm_decide(prompt)
+                answer, reasoning = await self.handle_form_filling(extracted_form, user_prompt)
 
             if Action.FORM_FILLED.value in answer:
                 pretty_print(f"Filled form. Handling page update.", color="status")

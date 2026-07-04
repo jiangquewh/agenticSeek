@@ -90,7 +90,7 @@ class Agent():
         return self.blocks_result
 
     def add_tool(self, name: str, tool: Callable) -> None:
-        if tool is not Callable:
+        if not callable(tool):
             raise TypeError("Tool must be a callable object (a method)")
         self.tools[name] = tool
     

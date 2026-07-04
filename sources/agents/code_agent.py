@@ -52,7 +52,6 @@ class CoderAgent(Agent):
         clarify_trigger = "REQUEST_CLARIFICATION"
 
         while attempt < max_attempts and not self.stop:
-            print("Stopped?", self.stop)
             animate_thinking("Thinking...", color="status")
             await self.wait_message(speech_module)
             answer, reasoning = await self.llm_request()

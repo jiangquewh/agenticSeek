@@ -95,7 +95,7 @@ server:
   # If your instance owns a /etc/searxng/settings.yml file, then set the following
   # values there.
 
-  secret_key: "supersecret"  # Is overwritten by ${SEARXNG_SECRET},W
+  secret_key: "supersecret"  # Is overwritten by ${SEARXNG_SECRET}
   # Proxy image results through SearXNG. Is overwritten by ${SEARXNG_IMAGE_PROXY}
   image_proxy: false
   # 1.0 and 1.1 are supported
@@ -367,25 +367,25 @@ engines:
     timeout: 6
     disabled: true
 
-  - name: adobe stock video
-    engine: adobe_stock
-    shortcut: asv
-    network: adobe stock
-    categories: ["videos"]
-    adobe_order: relevance
-    adobe_content_types: ["video"]
-    timeout: 6
-    disabled: true
-
-  - name: adobe stock audio
-    engine: adobe_stock
-    shortcut: asa
-    network: adobe stock
-    categories: ["music"]
-    adobe_order: relevance
-    adobe_content_types: ["audio"]
-    timeout: 6
-    disabled: true
+#  - name: adobe stock video
+#    engine: adobe_stock
+#    shortcut: asv
+#    network: adobe stock
+#    categories: ["videos"]
+#    adobe_order: relevance
+#    adobe_content_types: ["video"]
+#    timeout: 6
+#    disabled: true
+#
+#  - name: adobe stock audio
+#    engine: adobe_stock
+#    shortcut: asa
+#    network: adobe stock
+#    categories: ["music"]
+#    adobe_order: relevance
+#    adobe_content_types: ["audio"]
+#    timeout: 6
+#    disabled: true
 
   - name: alexandria
     engine: json_engine
@@ -419,10 +419,10 @@ engines:
     disabled: true
     shortcut: alp
 
-  - name: annas archive
-    engine: annas_archive
-    disabled: true
-    shortcut: aa
+#  - name: annas archive
+#    engine: annas_archive
+#    disabled: true
+#    shortcut: aa
 
   # - name: annas articles
   #   engine: annas_archive
@@ -486,10 +486,10 @@ engines:
     shortcut: arx
     timeout: 4.0
 
-  - name: ask
-    engine: ask
-    shortcut: ask
-    disabled: true
+#  - name: ask
+#    engine: ask
+#    shortcut: ask
+#    disabled: true
 
   # tmp suspended:  dh key too small
   # - name: base
@@ -1537,9 +1537,9 @@ engines:
       # image proxy of https://pixiv.perennialte.ch
       # - https://pximg.perennialte.ch
 
-  - name: podcastindex
-    engine: podcastindex
-    shortcut: podcast
+#  - name: podcastindex
+#    engine: podcastindex
+#    shortcut: podcast
 
   # Required dependency: psychopg2
   #  - name: postgresql
@@ -1619,34 +1619,34 @@ engines:
     shortcut: pypi
     engine: pypi
 
-  - name: qwant
-    qwant_categ: web
-    engine: qwant
-    shortcut: qw
-    categories: [general, web]
-    additional_tests:
-      rosebud: *test_rosebud
+#  - name: qwant
+#    qwant_categ: web
+#    engine: qwant
+#    shortcut: qw
+#    categories: [general, web]
+#    additional_tests:
+#      rosebud: *test_rosebud
 
-  - name: qwant news
-    qwant_categ: news
-    engine: qwant
-    shortcut: qwn
-    categories: news
-    network: qwant
-
-  - name: qwant images
-    qwant_categ: images
-    engine: qwant
-    shortcut: qwi
-    categories: [images, web]
-    network: qwant
-
-  - name: qwant videos
-    qwant_categ: videos
-    engine: qwant
-    shortcut: qwv
-    categories: [videos, web]
-    network: qwant
+#  - name: qwant news
+#    qwant_categ: news
+#    engine: qwant
+#    shortcut: qwn
+#    categories: news
+#    network: qwant
+#
+#  - name: qwant images
+#    qwant_categ: images
+#    engine: qwant
+#    shortcut: qwi
+#    categories: [images, web]
+#    network: qwant
+#
+#  - name: qwant videos
+#    qwant_categ: videos
+#    engine: qwant
+#    shortcut: qwv
+#    categories: [videos, web]
+#    network: qwant
 
   # - name: library
   #   engine: recoll
@@ -1743,15 +1743,15 @@ engines:
     shortcut: sogou
     disabled: true
 
-  - name: sogou images
-    engine: sogou_images
-    shortcut: sogoui
-    disabled: true
-
-  - name: sogou videos
-    engine: sogou_videos
-    shortcut: sogouv
-    disabled: true
+#  - name: sogou images
+#    engine: sogou_images
+#    shortcut: sogoui
+#    disabled: true
+#
+#  - name: sogou videos
+#    engine: sogou_videos
+#    shortcut: sogouv
+#    disabled: true
 
   - name: sogou wechat
     engine: sogou_wechat
@@ -1801,10 +1801,10 @@ engines:
     base_url: 'https://discourse.pi-hole.net'
     disabled: true
 
-  - name: searchcode code
-    engine: searchcode_code
-    shortcut: scc
-    disabled: true
+#  - name: searchcode code
+#    engine: searchcode_code
+#    shortcut: scc
+#    disabled: true
 
   # - name: searx
   #   engine: searx_engine
@@ -2255,6 +2255,7 @@ engines:
     first_page_num: 1
     page_size: 10
     disabled: true
+    language: ko
     about:
       website: https://www.naver.com/
       wikidata_id: Q485639
@@ -2262,7 +2263,6 @@ engines:
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: ko
 
   - name: rubygems
     shortcut: rbg
@@ -2329,12 +2329,12 @@ engines:
     categories: videos
     disabled: true
 
-  - name: livespace
-    engine: livespace
-    shortcut: ls
-    categories: videos
-    disabled: true
-    timeout: 5.0
+#  - name: livespace
+#    engine: livespace
+#    shortcut: ls
+#    categories: videos
+#    disabled: true
+#    timeout: 5.0
 
   - name: wordnik
     engine: wordnik
@@ -2353,47 +2353,47 @@ engines:
     content_xpath: //div[@class="synonyms-list-group"]
     title_xpath: //div[@class="upper-synonyms"]/a
     no_result_for_http_status: [404]
+    language: de
     about:
       website: https://www.woxikon.de/
       wikidata_id:  # No Wikidata ID
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: de
 
-  - name: seekr news
-    engine: seekr
-    shortcut: senews
-    categories: news
-    seekr_category: news
-    disabled: true
+#  - name: seekr news
+#    engine: seekr
+#    shortcut: senews
+#    categories: news
+#    seekr_category: news
+#    disabled: true
 
-  - name: seekr images
-    engine: seekr
-    network: seekr news
-    shortcut: seimg
-    categories: images
-    seekr_category: images
-    disabled: true
+#  - name: seekr images
+#    engine: seekr
+#    network: seekr news
+#    shortcut: seimg
+#    categories: images
+#    seekr_category: images
+#    disabled: true
 
-  - name: seekr videos
-    engine: seekr
-    network: seekr news
-    shortcut: sevid
-    categories: videos
-    seekr_category: videos
-    disabled: true
+#  - name: seekr videos
+#    engine: seekr
+#    network: seekr news
+#    shortcut: sevid
+#    categories: videos
+#    seekr_category: videos
+#    disabled: true
 
-  - name: stract
-    engine: stract
-    shortcut: str
-    disabled: true
+#  - name: stract
+#    engine: stract
+#    shortcut: str
+#    disabled: true
 
-  - name: svgrepo
-    engine: svgrepo
-    shortcut: svg
-    timeout: 10.0
-    disabled: true
+#  - name: svgrepo
+#    engine: svgrepo
+#    shortcut: svg
+#    timeout: 10.0
+#    disabled: true
 
   - name: tootfinder
     engine: tootfinder
@@ -2421,13 +2421,13 @@ engines:
     content_xpath: //li/div[@class="searchresult"]
     categories: general
     disabled: true
+    language: fr
     about:
       website: https://wikimini.org/
       wikidata_id: Q3568032
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: fr
 
   - name: wttr.in
     engine: wttr
@@ -2511,13 +2511,13 @@ engines:
     categories: [general, web]
     disabled: true
     timeout: 4.0
+    language: ja
     about:
       website: https://search.goo.ne.jp
       wikidata_id: Q249044
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: ja
 
   - name: bt4g
     engine: bt4g

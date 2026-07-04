@@ -8,7 +8,7 @@ if __name__ == "__main__": # if running as a script for individual testing
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from sources.tools.tools import Tools
-from sources.tools.safety import is_any_unsafe
+from sources.tools.safety import is_unsafe
 
 class BashInterpreter(Tools):
     """
@@ -34,38 +34,43 @@ class BashInterpreter(Tools):
     
     def execute(self, commands: str, safety=False, timeout=300):
         """
-        Execute bash commands and display output in real-time.
+        Execute bash commands in the work directory.
+        Commands run through the shell with newlines preserved so multi-line
+        blocks work. Each command is killed after `timeout` seconds.
+        In safe mode the whole batch is validated up front: if any command
+        is unsafe, nothing in the batch executes.
         """
         if safety and input("Execute command? y/n ") != "y":
             return "Command rejected by user."
-    
+
+        if self.safe_mode:
+            for command in commands:
+                if is_unsafe(command):
+                    print(f"Unsafe command rejected: {command}")
+                    return f"\nUnsafe command: {command}. Execution aborted. This is beyond allowed capabilities report to user."
+
         concat_output = ""
         for command in commands:
-            command = f"cd {self.work_dir} && {command}"
-            command = command.replace('\n', '')
-            if self.safe_mode and is_any_unsafe(commands):
-                print(f"Unsafe command rejected: {command}")
-                return "\nUnsafe command: {command}. Execution aborted. This is beyond allowed capabilities report to user."
             if self.language_bash_attempt(command) and self.allow_language_exec_bash == False:
                 continue
             try:
                 process = subprocess.Popen(
                     command,
                     shell=True,
+                    cwd=self.work_dir,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     universal_newlines=True
                 )
-                command_output = ""
-                for line in process.stdout:
-                    command_output += line
-                return_code = process.wait(timeout=timeout)
-                if return_code != 0:
-                    return f"Command {command} failed with return code {return_code}:\n{command_output}"
+                try:
+                    command_output, _ = process.communicate(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    command_output, _ = process.communicate()
+                    return f"Command {command} timed out. Output:\n{command_output}"
+                if process.returncode != 0:
+                    return f"Command {command} failed with return code {process.returncode}:\n{command_output}"
                 concat_output += f"Output of {command}:\n{command_output.strip()}\n"
-            except subprocess.TimeoutExpired:
-                process.kill()  # Kill the process if it times out
-                return f"Command {command} timed out. Output:\n{command_output}"
             except Exception as e:
                 return f"Command {command} failed:\n{str(e)}"
         return concat_output

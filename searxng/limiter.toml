@@ -1,5 +1,10 @@
 [botdetection]
 
+# Proxies whose X-Forwarded-For header is trusted (replaces real_ip.x_for).
+# No reverse proxy sits in front of this instance, so none are listed.
+
+# trusted_proxies = ['127.0.0.0/8', '::1']
+
 # The prefix defines the number of leading bits in an address that are compared
 # to determine whether or not an address is part of a (client) network.
 
