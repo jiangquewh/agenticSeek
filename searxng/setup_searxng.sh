@@ -58,6 +58,9 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
+# Generate a secret key; docker-compose passes it to SearXNG as SEARXNG_SECRET
+export SEARXNG_SECRET_KEY=$(openssl rand -hex 32)
+
 # Start containers to generate initial config files
 echo "Starting containers for initial setup..."
 if ! docker-compose up -d; then
@@ -67,19 +70,7 @@ if ! docker-compose up -d; then
 fi
 sleep 10
 
-# Generate a secret key and update settings
-SECRET_KEY=$(openssl rand -hex 32)
-if [ -f "searxng/settings.yml" ]; then
-    if [ "$(uname)" = "Darwin" ]; then
-        sed -i '' "s/ultrasecretkey/$SECRET_KEY/g" searxng/settings.yml || {
-            echo "Warning: Failed to update settings.yml with secret key. Please check the file manually."
-        }
-    else
-        sed -i "s/ultrasecretkey/$SECRET_KEY/g" searxng/settings.yml || {
-            echo "Warning: Failed to update settings.yml with secret key. Please check the file manually."
-        }
-    fi
-else
+if [ ! -f "searxng/settings.yml" ]; then
     echo "Error: settings.yml not found. Initial setup may have failed."
     docker-compose logs searxng
     exit 1

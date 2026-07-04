@@ -33,7 +33,8 @@ services:
       - ./searxng:/etc/searxng:rw,z
     environment:
       - SEARXNG_BASE_URL=${SEARXNG_BASE_URL:-http://localhost:8080/}
-      - SEARXNG_SECRET_KEY=${SEARXNG_SECRET_KEY}
+      # SearXNG only reads SEARXNG_SECRET; start_services.sh exports SEARXNG_SECRET_KEY
+      - SEARXNG_SECRET=${SEARXNG_SECRET_KEY}
       - UWSGI_WORKERS=4
       - UWSGI_THREADS=4
     cap_add:

@@ -29,6 +29,8 @@ services:
       - ./searxng:/etc/searxng:rw
     environment:
       - SEARXNG_BASE_URL=${SEARXNG_BASE_URL:-http://localhost:8080/}
+      # SearXNG only reads SEARXNG_SECRET; setup_searxng.sh exports SEARXNG_SECRET_KEY
+      - SEARXNG_SECRET=${SEARXNG_SECRET_KEY}
       - UWSGI_WORKERS=1
       - UWSGI_THREADS=1
     user: "1000:1000"  # Run as current user to avoid permission issues
