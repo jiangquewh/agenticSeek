@@ -419,10 +419,10 @@ engines:
     disabled: true
     shortcut: alp
 
-  - name: annas archive
-    engine: annas_archive
-    disabled: true
-    shortcut: aa
+#  - name: annas archive
+#    engine: annas_archive
+#    disabled: true
+#    shortcut: aa
 
   # - name: annas articles
   #   engine: annas_archive
@@ -486,10 +486,10 @@ engines:
     shortcut: arx
     timeout: 4.0
 
-  - name: ask
-    engine: ask
-    shortcut: ask
-    disabled: true
+#  - name: ask
+#    engine: ask
+#    shortcut: ask
+#    disabled: true
 
   # tmp suspended:  dh key too small
   # - name: base
@@ -1537,9 +1537,9 @@ engines:
       # image proxy of https://pixiv.perennialte.ch
       # - https://pximg.perennialte.ch
 
-  - name: podcastindex
-    engine: podcastindex
-    shortcut: podcast
+#  - name: podcastindex
+#    engine: podcastindex
+#    shortcut: podcast
 
   # Required dependency: psychopg2
   #  - name: postgresql
@@ -1801,10 +1801,10 @@ engines:
     base_url: 'https://discourse.pi-hole.net'
     disabled: true
 
-  - name: searchcode code
-    engine: searchcode_code
-    shortcut: scc
-    disabled: true
+#  - name: searchcode code
+#    engine: searchcode_code
+#    shortcut: scc
+#    disabled: true
 
   # - name: searx
   #   engine: searx_engine
@@ -2255,6 +2255,7 @@ engines:
     first_page_num: 1
     page_size: 10
     disabled: true
+    language: ko
     about:
       website: https://www.naver.com/
       wikidata_id: Q485639
@@ -2262,7 +2263,6 @@ engines:
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: ko
 
   - name: rubygems
     shortcut: rbg
@@ -2329,12 +2329,12 @@ engines:
     categories: videos
     disabled: true
 
-  - name: livespace
-    engine: livespace
-    shortcut: ls
-    categories: videos
-    disabled: true
-    timeout: 5.0
+#  - name: livespace
+#    engine: livespace
+#    shortcut: ls
+#    categories: videos
+#    disabled: true
+#    timeout: 5.0
 
   - name: wordnik
     engine: wordnik
@@ -2353,47 +2353,47 @@ engines:
     content_xpath: //div[@class="synonyms-list-group"]
     title_xpath: //div[@class="upper-synonyms"]/a
     no_result_for_http_status: [404]
+    language: de
     about:
       website: https://www.woxikon.de/
       wikidata_id:  # No Wikidata ID
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: de
 
-  - name: seekr news
-    engine: seekr
-    shortcut: senews
-    categories: news
-    seekr_category: news
-    disabled: true
+#  - name: seekr news
+#    engine: seekr
+#    shortcut: senews
+#    categories: news
+#    seekr_category: news
+#    disabled: true
 
-  - name: seekr images
-    engine: seekr
-    network: seekr news
-    shortcut: seimg
-    categories: images
-    seekr_category: images
-    disabled: true
+#  - name: seekr images
+#    engine: seekr
+#    network: seekr news
+#    shortcut: seimg
+#    categories: images
+#    seekr_category: images
+#    disabled: true
 
-  - name: seekr videos
-    engine: seekr
-    network: seekr news
-    shortcut: sevid
-    categories: videos
-    seekr_category: videos
-    disabled: true
+#  - name: seekr videos
+#    engine: seekr
+#    network: seekr news
+#    shortcut: sevid
+#    categories: videos
+#    seekr_category: videos
+#    disabled: true
 
-  - name: stract
-    engine: stract
-    shortcut: str
-    disabled: true
+#  - name: stract
+#    engine: stract
+#    shortcut: str
+#    disabled: true
 
-  - name: svgrepo
-    engine: svgrepo
-    shortcut: svg
-    timeout: 10.0
-    disabled: true
+#  - name: svgrepo
+#    engine: svgrepo
+#    shortcut: svg
+#    timeout: 10.0
+#    disabled: true
 
   - name: tootfinder
     engine: tootfinder
@@ -2421,13 +2421,13 @@ engines:
     content_xpath: //li/div[@class="searchresult"]
     categories: general
     disabled: true
+    language: fr
     about:
       website: https://wikimini.org/
       wikidata_id: Q3568032
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: fr
 
   - name: wttr.in
     engine: wttr
@@ -2511,13 +2511,13 @@ engines:
     categories: [general, web]
     disabled: true
     timeout: 4.0
+    language: ja
     about:
       website: https://search.goo.ne.jp
       wikidata_id: Q249044
       use_official_api: false
       require_api_key: false
       results: HTML
-      language: ja
 
   - name: bt4g
     engine: bt4g
