@@ -21,6 +21,7 @@ from sources.browser import Browser, create_driver
 from sources.utility import pretty_print
 from sources.logger import Logger
 from sources.schemas import QueryRequest, QueryResponse
+from sources.workspace import runtime_subdir
 
 from dotenv import load_dotenv
 
@@ -67,9 +68,8 @@ api.add_middleware(
     allow_headers=["*"],
 )
 
-if not os.path.exists(".screenshots"):
-    os.makedirs(".screenshots")
-api.mount("/screenshots", StaticFiles(directory=".screenshots"), name="screenshots")
+SCREENSHOTS_DIR = runtime_subdir("screenshots")
+api.mount("/screenshots", StaticFiles(directory=SCREENSHOTS_DIR), name="screenshots")
 
 def initialize_system():
     stealth_mode = config.getboolean('BROWSER', 'stealth_mode')
@@ -154,7 +154,7 @@ query_resp_history = []
 @api.get("/screenshot")
 async def get_screenshot():
     logger.info("Screenshot endpoint called")
-    screenshot_path = ".screenshots/updated_screen.png"
+    screenshot_path = os.path.join(SCREENSHOTS_DIR, "updated_screen.png")
     if os.path.exists(screenshot_path):
         return FileResponse(screenshot_path)
     logger.error("No screenshot available")
