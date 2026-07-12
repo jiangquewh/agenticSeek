@@ -31,6 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sources.utility import pretty_print, animate_thinking
 from sources.logger import Logger
+from sources.workspace import runtime_subdir
 
 
 def get_chrome_path() -> str:
@@ -288,7 +289,7 @@ class Browser:
         self.js_scripts_folder = "./sources/web_scripts/" if not __name__ == "__main__" else "./web_scripts/"
         self.anticaptcha = "https://chrome.google.com/webstore/detail/nopecha-captcha-solver/dknlfmjaanfblgfdfebhijalfmhmjjjo/related"
         self.logger = Logger("browser.log")
-        self.screenshot_folder = os.path.join(os.getcwd(), ".screenshots")
+        self.screenshot_folder = runtime_subdir("screenshots")
         self.tabs = []
         try:
             self.driver = driver

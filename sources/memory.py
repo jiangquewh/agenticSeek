@@ -11,6 +11,7 @@ import configparser
 
 from sources.utility import timer_decorator, pretty_print, animate_thinking
 from sources.logger import Logger
+from sources.workspace import runtime_subdir
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -29,7 +30,7 @@ class Memory():
         self.logger = Logger("memory.log")
         self.session_time = datetime.datetime.now()
         self.session_id = str(uuid.uuid4())
-        self.conversation_folder = f"conversations/"
+        self.conversation_folder = runtime_subdir("conversations")
         self.session_recovered = False
         if recover_last_session:
             self.load_memory()

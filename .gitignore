@@ -12,8 +12,8 @@ config.ini
 experimental/
 chrome_bundle/
 .logs/
-.screenshots/*.png
-.screenshots/*.jpg
+.screenshots/
+.agent-data/
 conversations/
 agentic_env/*
 agentic_seek_env/*
