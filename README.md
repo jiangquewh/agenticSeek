@@ -761,9 +761,19 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 ## Sponsors:
 
-Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpApi to unlock more Jarvis-like capabilities. With SerpApi, you can turbocharge your agent for specialized tasks while staying in full control.
+### MangoProxy
+
+<a href="https://mangoproxy.com/?utm_source=fosowl_github&utm_medium=partner&utm_campaign=fosowl_partners"><img src="./media/banners/bannerMangoProxy.png" height="350" alt="MangoProxy Banner" ></a>
+
+Mango Proxy provides residential, ISP, mobile, and datacenter proxies that can be used with agenticSeek when websites require IP rotation or additional network flexibility. This can help reduce anti-bot challenges, improve reliability across different targets, and support large-scale web automation workflows.
+
+Use promo code **FOSOWL** to get *8% off* Static ISP Proxies.
+
+### SerpAPI
 
 <a href="https://serpapi.com/"><img src="./media/banners/sponsor_banner_serpapi.png" height="350" alt="SerpApi Banner" ></a>
+
+Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpApi to unlock more Jarvis-like capabilities. With SerpApi, you can turbocharge your agent for specialized tasks while staying in full control.
 
 See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom tools!
 
