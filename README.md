@@ -777,15 +777,9 @@ Want to level up AgenticSeek capabilities with features like flight search, trip
 
 See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom tools!
 
-### **Patron sponsor**:
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## Maintainers:
 
  > [Fosowl](https://github.com/Fosowl) | Paris Time
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time
 
 ## Special Thanks:
 

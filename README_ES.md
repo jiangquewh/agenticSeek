@@ -683,15 +683,9 @@ Cualquier cuenta de AgenticSeek en X además de mi cuenta personal (https://x.co
 
 ¡Consulta [Contributing.md](./docs/CONTRIBUTING.md) para aprender cómo integrar herramientas personalizadas!
 
-### **Patrocinadores**:
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## Mantenedores:
 
  > [Fosowl](https://github.com/Fosowl) | Hora de París 
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Hora de Taipei 
 
 ## Agradecimientos especiales:
 

@@ -684,15 +684,9 @@ AgenticSeekを改善する開発者を探しています！オープンなissue�
 
 [Contributing.md](./docs/CONTRIBUTING.md)をチェックして、カスタムツールを統合する方法を学びましょう！
 
-### **スポンサー**：
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## メンテナー：
 
  > [Fosowl](https://github.com/Fosowl) | パリ時間 
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | 台北時間 
 
 ## 特別な感謝：
 
