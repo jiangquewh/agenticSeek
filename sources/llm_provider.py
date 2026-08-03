@@ -335,7 +335,7 @@ class Provider:
             raise Exception("Deepseek (API) is not available for local use. Change config.ini")
         try:
             response = client.chat.completions.create(
-                model="deepseek-chat",
+                model=self.model,
                 messages=history,
                 stream=False
             )
