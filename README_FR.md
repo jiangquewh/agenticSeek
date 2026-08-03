@@ -683,15 +683,9 @@ Vous voulez améliorer les capacités d'AgenticSeek avec des fonctionnalités co
 
 Consultez [Contributing.md](./docs/CONTRIBUTING.md) pour apprendre comment intégrer des outils personnalisés !
 
-### **Sponsors**:
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## Mainteneurs:
 
  > [Fosowl](https://github.com/Fosowl) | Heure de Paris 
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Heure de Taipei 
 
 ## Remerciements spéciaux:
 

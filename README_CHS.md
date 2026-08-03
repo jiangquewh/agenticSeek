@@ -685,15 +685,9 @@ X 上除了我的个人账户（https://x.com/Martin993886460）之外的任何 
 
 查看 [Contributing.md](./docs/CONTRIBUTING.md) 了解如何集成自定义工具！
 
-### **赞助商**：
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## 维护者：
 
  > [Fosowl](https://github.com/Fosowl) | 巴黎时间 
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | 台北时间 
 
 ## 特别感谢：
 

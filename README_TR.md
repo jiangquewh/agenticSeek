@@ -693,15 +693,9 @@ AgenticSeek'in yeteneklerini uçuş arama, seyahat planlama veya en iyi alışve
 
 Özel araçları nasıl entegre edeceğinizi öğrenmek için [Contributing.md](./docs/CONTRIBUTING.md) dosyasına bakın!
 
-### **Patron Sponsor**:
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## Bakımcılar:
 
  > [Fosowl](https://github.com/Fosowl) | Paris Saati
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Saati
 
 ## Özel Teşekkürler:
 

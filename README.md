@@ -364,7 +364,7 @@ Instead, ask:
 
 ## **Setup to run the LLM on your own server**
 
-If you have a powerful computer or a server that you can use, but you want to use it from your laptop you have the options to run the LLM on a remote server using our custom llm server.
+If you have a powerful computer or a server that you can use, but you want to use it from your laptop, you can run the LLM on the remote machine with a standard LLM server (Ollama, or any OpenAI-compatible server such as llama.cpp's `llama-server`) and point AgenticSeek at it over the network. No AgenticSeek-specific code needs to run on the server.
 
 On your "server" that will run the AI model, get the ip address
 
@@ -375,42 +375,48 @@ curl https://ipinfo.io/ip # public ip
 
 Note: For Windows or macOS, use ipconfig or ifconfig respectively to find the IP address.
 
-Clone the repository and enter the `server/`folder.
+**Option 1: Ollama (recommended)**
 
+On the server, install [Ollama](https://ollama.com/), start it so it accepts connections from your network, and pull your model:
 
 ```sh
-git clone --depth 1 https://github.com/Fosowl/agenticSeek.git
-cd agenticSeek/llm_server/
+OLLAMA_HOST=0.0.0.0 ollama serve
+ollama pull deepseek-r1:14b
 ```
 
-Install server specific requirements:
+On your personal computer, change `config.ini`:
 
-```sh
-pip3 install -r requirements.txt
-```
-
-Run the server script.
-
-```sh
-python3 app.py --provider ollama --port 3333
-```
-
-You have the choice between using `ollama` and `llamacpp` as a LLM service.
-
-
-Now on your personal computer:
-
-Change the `config.ini` file to set the `provider_name` to `server` and `provider_model` to `deepseek-r1:xxb`.
-Set the `provider_server_address` to the ip address of the machine that will run the model.
-
-```sh
+```ini
 [MAIN]
 is_local = False
-provider_name = server
-provider_model = deepseek-r1:70b
-provider_server_address = http://x.x.x.x:3333
+provider_name = ollama
+provider_model = deepseek-r1:14b
+provider_server_address = x.x.x.x:11434
 ```
 
+`is_local` must be `False` here: with `True`, AgenticSeek looks for Ollama on the machine it runs on and ignores the address.
+
+**Option 2: llama.cpp or any other OpenAI-compatible server**
+
+On the server, start [llama.cpp's llama-server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) with your GGUF model (LM-Studio, vLLM or any other server exposing an OpenAI-compatible API works the same way):
+
+```sh
+llama-server -m your-model.gguf --host 0.0.0.0 --port 8080
+```
+
+On your personal computer, use the `lm-studio` provider — it speaks the plain OpenAI-compatible `/v1/chat/completions` API without requiring an API key:
+
+```ini
+[MAIN]
+is_local = False
+provider_name = lm-studio
+provider_model = your-model
+provider_server_address = http://x.x.x.x:8080
+```
+
+**Legacy: custom AgenticSeek LLM server (deprecated)**
+
+Earlier versions shipped a custom Flask-based wrapper in `llm_server/`, used with `provider_name = server`. It is deprecated: it handles one request at a time, does not stream, offers no authentication, and the standard servers above do everything it did. It remains in the repository only for existing setups and may be removed in a future release.
 
 Next step: [Start services and run AgenticSeek](#Start-services-and-Run)
 
@@ -472,12 +478,12 @@ stealth_mode = False
 *   **`[MAIN]` Section:**
     *   `is_local`: `True` if using a local LLM provider (Ollama, LM-Studio, local OpenAI-compatible server) or the self-hosted server option. `False` if using a cloud-based API (OpenAI, Google, etc.).
     *   `provider_name`: Specifies the LLM provider.
-        *   Local options: `ollama`, `lm-studio`, `openai` (for local OpenAI-compatible servers), `server` (for the self-hosted server setup).
+        *   Local options: `ollama`, `lm-studio`, `openai` (for local OpenAI-compatible servers). `server` is deprecated — see [Setup to run the LLM on your own server](#setup-to-run-the-llm-on-your-own-server).
         *   API options: `openai`, `google`, `deepseek`, `huggingface`, `togetherAI`.
     *   `provider_model`: The specific model name or ID for the chosen provider (e.g., `deepseekcoder:6.7b` for Ollama, `gpt-3.5-turbo` for OpenAI API, `mistralai/Mixtral-8x7B-Instruct-v0.1` for TogetherAI).
     *   `provider_server_address`: The address of your LLM provider.
         *   For local providers: e.g., `http://127.0.0.1:11434` for Ollama, `http://127.0.0.1:1234` for LM-Studio.
-        *   For the `server` provider type: The address of your self-hosted LLM server (e.g., `http://your_server_ip:3333`).
+        *   For an LLM server on another machine: e.g., `x.x.x.x:11434` for remote Ollama, `http://x.x.x.x:8080` for a remote OpenAI-compatible server (see [Setup to run the LLM on your own server](#setup-to-run-the-llm-on-your-own-server)).
         *   For cloud APIs (`is_local = False`): This is often ignored or can be left blank, as the API endpoint is usually handled by the client library.
     *   `agent_name`: Name of the AI assistant (e.g., Friday). Used as a trigger word for speech-to-text if enabled.
     *   `recover_last_session`: `True` to attempt to restore the previous session's state, `False` to start fresh.
@@ -501,7 +507,7 @@ This section summarizes the supported LLM provider types. Configure them in `con
 | `ollama`                      | `True`     | Use Ollama to serve local LLMs.                                             | [Setup for running LLM locally](#setup-for-running-llm-locally-on-your-machine) |
 | `lm-studio`                   | `True`     | Use LM-Studio to serve local LLMs.                                          | [Setup for running LLM locally](#setup-for-running-llm-locally-on-your-machine) |
 | `openai` (for local server)   | `True`     | Connect to a local server that exposes an OpenAI-compatible API (e.g., llama.cpp). | [Setup for running LLM locally](#setup-for-running-llm-locally-on-your-machine) |
-| `server`                      | `False`    | Connect to the AgenticSeek self-hosted LLM server running on another machine. | [Setup to run the LLM on your own server](#setup-to-run-the-llm-on-your-own-server) |
+| `server` (deprecated)         | `False`    | Legacy AgenticSeek self-hosted LLM server. Use remote Ollama or an OpenAI-compatible server instead. | [Setup to run the LLM on your own server](#setup-to-run-the-llm-on-your-own-server) |
 
 **API Providers (Cloud-Based):**
 
@@ -755,21 +761,25 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 ## Sponsors:
 
-Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpApi to unlock more Jarvis-like capabilities. With SerpApi, you can turbocharge your agent for specialized tasks while staying in full control.
+### MangoProxy
+
+<a href="https://mangoproxy.com/?utm_source=fosowl_github&utm_medium=partner&utm_campaign=fosowl_partners"><img src="./media/banners/bannerMangoProxy.png" height="350" alt="MangoProxy Banner" ></a>
+
+Mango Proxy provides residential, ISP, mobile, and datacenter proxies that can be used with agenticSeek when websites require IP rotation or additional network flexibility. This can help reduce anti-bot challenges, improve reliability across different targets, and support large-scale web automation workflows.
+
+Use promo code **FOSOWL** to get *8% off* Static ISP Proxies.
+
+### SerpAPI
 
 <a href="https://serpapi.com/"><img src="./media/banners/sponsor_banner_serpapi.png" height="350" alt="SerpApi Banner" ></a>
 
+Want to level up AgenticSeek capabilities with features like flight search, trip planning, or snagging the best shopping deals? Consider crafting a custom tool with SerpApi to unlock more Jarvis-like capabilities. With SerpApi, you can turbocharge your agent for specialized tasks while staying in full control.
+
 See [Contributing.md](./docs/CONTRIBUTING.md) to learn how to integrate custom tools!
-
-### **Patron sponsor**:
-
-- [tatra-labs](https://github.com/tatra-labs)
 
 ## Maintainers:
 
  > [Fosowl](https://github.com/Fosowl) | Paris Time
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Taipei Time
 
 ## Special Thanks:
 

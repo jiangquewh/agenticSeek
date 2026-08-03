@@ -683,15 +683,9 @@ Você quer melhorar as capacidades do AgenticSeek com recursos como pesquisa de 
 
 Confira [Contributing.md](./docs/CONTRIBUTING.md) para aprender como integrar ferramentas personalizadas!
 
-### **Patrocinadores**:
-
-- [tatra-labs](https://github.com/tatra-labs)
-
 ## Mantenedores:
 
  > [Fosowl](https://github.com/Fosowl) | Horário de Paris 
-
- > [antoineVIVIES](https://github.com/antoineVIVIES) | Horário de Taipei 
 
 ## Agradecimentos especiais:
 
