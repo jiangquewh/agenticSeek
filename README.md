@@ -763,7 +763,11 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 ### SwiftProxy
 
-<a href="https://www.swiftproxy.net/?ref=Fosowl"><img src="./media/banners/bannerSwiftProxy.png" height="350" alt="Swiftproxy Banner" ></a>
+<p align="center">
+  <a href="https://www.swiftproxy.net/?ref=Fosowl">
+    <img src="./media/banners/bannerSwiftProxy.png" alt="SwiftProxy Banner" width="800">
+  </a>
+</p>
 
 **Swiftproxy** provides 90M+ clean residential IPs across 220+ locations, supporting HTTP(S)/SOCKS5, IP rotation, Sticky Sessions, and precise location targeting. It helps AI agents and automation tools access websites reliably from different locations, making it suitable for web browsing, data collection, research, and location-based testing.
 
