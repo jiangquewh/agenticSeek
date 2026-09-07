@@ -771,6 +771,8 @@ We’re looking for developers to improve AgenticSeek! Check out open issues or 
 
 **Swiftproxy** provides 90M+ clean residential IPs across 220+ locations, supporting HTTP(S)/SOCKS5, IP rotation, Sticky Sessions, and precise location targeting. It helps AI agents and automation tools access websites reliably from different locations, making it suitable for web browsing, data collection, research, and location-based testing.
 
+*Free testing is available, with 10% off using code **PROXY90**.*
+
 ### MangoProxy
 
 <a href="https://mangoproxy.com/?utm_source=fosowl_github&utm_medium=partner&utm_campaign=fosowl_partners"><img src="./media/banners/bannerMangoProxy.png" height="350" alt="MangoProxy Banner" ></a>
